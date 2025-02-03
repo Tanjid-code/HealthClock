@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.tanjid.healthclock.HelloController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<AnchorPane fx:controller="com.tanjid.healthclock.HelloController"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@style.css"
+            prefWidth="600" prefHeight="400">
+
+    <!-- App Logo -->
+    <ImageView fx:id="logoImage" layoutX="250" layoutY="30" fitWidth="100" fitHeight="100"/>
+
+    <!-- Health Quote -->
+    <Label fx:id="quoteLabel" text="Your Health is Your Greatest Wealth!" layoutX="140" layoutY="150"
+           styleClass="quote-label"/>
+
+    <!-- Button 1 - Add Prescription -->
+    <Button fx:id="addPrescriptionButton" text="Add Prescription" layoutX="150" layoutY="200"
+            onAction="#onAddPrescription" styleClass="primary-button" />
+
+    <!-- Button 2 - View Medicines & Alarms -->
+    <Button fx:id="viewMedicinesButton" text="View Medicines & Alarms" layoutX="150" layoutY="250"
+            onAction="#onViewMedicines" styleClass="primary-button" />
+
+    <!-- Button 3 - Manage Settings -->
+    <Button fx:id="manageSettingsButton" text="Manage Settings" layoutX="150" layoutY="300"
+            onAction="#onManageSettings" styleClass="primary-button" />
+
+</AnchorPane>

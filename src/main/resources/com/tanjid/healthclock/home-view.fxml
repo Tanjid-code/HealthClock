@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.HelloController" prefHeight="400.0" prefWidth="600.0">
+    <children>
+        <!-- Image and Quote Section -->
+        <ImageView fx:id="logoImage" fitHeight="150" fitWidth="150" layoutX="225" layoutY="20" />
+        <Text fx:id="quoteText" text="“Health is wealth”" layoutX="200" layoutY="180" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+
+        <!-- Buttons Section -->
+        <Button fx:id="btnAddPrescription" text="Add Prescription" layoutX="175" layoutY="230" onAction="#handleAddPrescriptionClick" prefWidth="250" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;" />
+        <Button fx:id="btnViewMedicines" text="View Medicines &amp; Alarm" layoutX="175" layoutY="270" onAction="#handleViewMedicinesClick" prefWidth="250" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;" />
+        <Button fx:id="btnManageSettings" text="Manage Settings" layoutX="175" layoutY="310" onAction="#handleManageSettingsClick" prefWidth="250" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;" />
+    </children>
+</AnchorPane>
