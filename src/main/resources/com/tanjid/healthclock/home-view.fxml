@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.HelloController" prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.tanjid.healthclock.HelloController">
     <children>
         <!-- Image and Quote Section -->
-        <ImageView fx:id="logoImage" fitHeight="150" fitWidth="150" layoutX="225" layoutY="20" />
-        <Text fx:id="quoteText" text="“Health is wealth”" layoutX="200" layoutY="180" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+        <ImageView fx:id="logoImage" fitHeight="150" fitWidth="150" layoutX="225.0" layoutY="14.0" />
+        <Text fx:id="quoteText" layoutX="223.0" layoutY="193.0" style="-fx-font-size: 18px; -fx-font-weight: bold;" text="“Health is wealth”" />
 
         <!-- Buttons Section -->
-        <Button fx:id="btnAddPrescription" text="Add Prescription" layoutX="175" layoutY="230" onAction="#handleAddPrescriptionClick" prefWidth="250" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;" />
-        <Button fx:id="btnViewMedicines" text="View Medicines &amp; Alarm" layoutX="175" layoutY="270" onAction="#handleViewMedicinesClick" prefWidth="250" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;" />
-        <Button fx:id="btnManageSettings" text="Manage Settings" layoutX="175" layoutY="310" onAction="#handleManageSettingsClick" prefWidth="250" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;" />
+        <Button fx:id="btnAddPrescription" layoutX="175" layoutY="230" onAction="#handleAddPrescriptionClick" prefWidth="250" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;" text="Add Prescription" />
+        <Button fx:id="btnViewMedicines" layoutX="175" layoutY="270" onAction="#handleViewMedicinesClick" prefWidth="250" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;" text="View Medicines &amp; Alarm" />
+        <Button fx:id="btnManageSettings" layoutX="175" layoutY="310" onAction="#handleManageSettingsClick" prefWidth="250" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;" text="Manage Settings" />
     </children>
 </AnchorPane>

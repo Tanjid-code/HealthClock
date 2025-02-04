@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane style="-fx-background-color: #f0f8ff;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
+    <children>
+        <!-- Back Button -->
+        <Button layoutX="20" layoutY="20" onAction="#goBackToHome" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;" text="Back to Home" />
+
+        <!-- Image Upload Section -->
+        <Label layoutX="123.0" layoutY="81.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Upload Prescription Image:" />
+
+        <!-- Image Button for Choosing Image -->
+        <Button layoutX="220.0" layoutY="173.0" onAction="#uploadImage" style="-fx-background-color: transparent; -fx-border-color: gray; -fx-border-width: 2px; -fx-padding: 0px;" />
+
+        <!-- Prescription Image Display -->
+        <ImageView fx:id="prescriptionImageView" fitHeight="200" fitWidth="250" layoutX="50" layoutY="100" style="-fx-border-color: gray; -fx-border-width: 2px;" />
+
+        <!-- Patient Name -->
+        <Label layoutX="50" layoutY="320" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Patient Name:" />
+        <TextField fx:id="patientNameField" layoutX="160" layoutY="315" prefHeight="27.0" prefWidth="244.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+
+        <!-- Medicine Name -->
+        <Label layoutX="50" layoutY="360" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Medicine Name:" />
+        <TextField fx:id="medicineNameField" layoutX="160" layoutY="355" prefHeight="27.0" prefWidth="244.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+
+        <!-- Dosage Timing -->
+        <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing:" />
+        <CheckBox fx:id="morningCheck" layoutX="160" layoutY="400" text="Morning" />
+        <CheckBox fx:id="afternoonCheck" layoutX="240" layoutY="400" text="Afternoon" />
+        <CheckBox fx:id="eveningCheck" layoutX="340" layoutY="400" text="Evening    " />
+
+        <!-- New Section: Duration (How Many Days) -->
+        <Label layoutX="50" layoutY="440" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Duration (Days):" />
+        <TextField fx:id="durationField" layoutX="160" layoutY="435" prefWidth="80" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+
+        <!-- Save Button -->
+        <Button layoutX="150" layoutY="480" onAction="#savePrescription" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-background-radius: 10px;" text="Save Prescription" />
+          <ImageView fitHeight="159.0" fitWidth="180.0" layoutX="123.0" layoutY="115.0">
+              <Image url="@choose_image_icon.png" />  <!-- Replace with your actual icon -->
+          </ImageView>
+    </children>
+</AnchorPane>
