@@ -12,7 +12,13 @@
         <Text fx:id="quoteText" layoutX="223.0" layoutY="193.0" style="-fx-font-size: 18px; -fx-font-weight: bold;" text="“Health is wealth”" />
 
         <!-- Buttons Section -->
-        <Button fx:id="btnAddPrescription" layoutX="175" layoutY="230" onAction="#handleAddPrescriptionClick" prefWidth="250" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;" text="Add Prescription" />
+        <Button fx:id="btnAddPrescription"
+                layoutX="175" layoutY="230"
+                onAction="#onAddPrescription"
+                prefWidth="250"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;"
+                text="Add Prescription" />
+
         <Button fx:id="btnViewMedicines" layoutX="175" layoutY="270" onAction="#handleViewMedicinesClick" prefWidth="250" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;" text="View Medicines &amp; Alarm" />
         <Button fx:id="btnManageSettings" layoutX="175" layoutY="310" onAction="#handleManageSettingsClick" prefWidth="250" style="-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;" text="Manage Settings" />
     </children>

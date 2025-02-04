@@ -5,7 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:controller="com.tanjid.healthclock.HelloController"
+<AnchorPane fx:controller="com.tanjid.healthclock.HomeController"
             xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             stylesheets="@style.css"
