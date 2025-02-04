@@ -23,13 +23,25 @@ public class AddPrescriptionController {
     private File selectedImageFile;
 
     @FXML
+    private void initialize() {
+        // Set the default image or placeholder
+        prescriptionImageView.setImage(new Image(getClass().getResourceAsStream("choose_image_icon.png")));
+
+        // Make the image clickable (acting as a button to upload image)
+        prescriptionImageView.setOnMouseClicked(event -> uploadImage());
+    }
+
+    @FXML
     private void uploadImage() {
+        // Open file chooser to select an image
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         selectedImageFile = fileChooser.showOpenDialog(null);
 
         if (selectedImageFile != null) {
-            prescriptionImageView.setImage(new Image(selectedImageFile.toURI().toString()));
+            // Set the selected image to the ImageView without resizing
+            Image image = new Image(selectedImageFile.toURI().toString());
+            prescriptionImageView.setImage(image);  // Update the image while keeping the same size
         }
     }
 

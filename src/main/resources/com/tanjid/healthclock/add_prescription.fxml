@@ -4,11 +4,10 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane style="-fx-background-color: #f0f8ff;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
+<AnchorPane style="-fx-background-color: #f0f8ff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
     <children>
         <!-- Back Button -->
         <Button layoutX="20" layoutY="20" onAction="#goBackToHome" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;" text="Back to Home" />
@@ -42,8 +41,5 @@
 
         <!-- Save Button -->
         <Button layoutX="150" layoutY="480" onAction="#savePrescription" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-background-radius: 10px;" text="Save Prescription" />
-          <ImageView fitHeight="159.0" fitWidth="180.0" layoutX="123.0" layoutY="115.0">
-              <Image url="@choose_image_icon.png" />  <!-- Replace with your actual icon -->
-          </ImageView>
     </children>
 </AnchorPane>
