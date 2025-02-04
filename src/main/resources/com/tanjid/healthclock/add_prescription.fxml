@@ -13,13 +13,13 @@
         <Button layoutX="20" layoutY="20" onAction="#goBackToHome" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;" text="Back to Home" />
 
         <!-- Image Upload Section -->
-        <Label layoutX="123.0" layoutY="81.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Upload Prescription Image:" />
-
-        <!-- Image Button for Choosing Image -->
-        <Button layoutX="220.0" layoutY="173.0" onAction="#uploadImage" style="-fx-background-color: transparent; -fx-border-color: gray; -fx-border-width: 2px; -fx-padding: 0px;" />
+        <Label layoutX="129.0" layoutY="70.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Upload Prescription Image" />
 
         <!-- Prescription Image Display -->
-        <ImageView fx:id="prescriptionImageView" fitHeight="200" fitWidth="250" layoutX="50" layoutY="100" style="-fx-border-color: gray; -fx-border-width: 2px;" />
+        <ImageView fx:id="prescriptionImageView" fitHeight="180" fitWidth="220" layoutX="110" layoutY="90" style="-fx-border-color: gray; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-cursor: hand;" />
+
+        <!-- Smaller Invisible Button Overlaying the Image -->
+        <Button layoutX="165" layoutY="180" onAction="#uploadImage" prefHeight="50" prefWidth="170" style="-fx-background-color: transparent;" />
 
         <!-- Patient Name -->
         <Label layoutX="50" layoutY="320" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Patient Name:" />
@@ -33,7 +33,7 @@
         <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing:" />
         <CheckBox fx:id="morningCheck" layoutX="160" layoutY="400" text="Morning" />
         <CheckBox fx:id="afternoonCheck" layoutX="240" layoutY="400" text="Afternoon" />
-        <CheckBox fx:id="eveningCheck" layoutX="340" layoutY="400" text="Evening    " />
+        <CheckBox fx:id="eveningCheck" layoutX="340" layoutY="400" text="Evening      " />
 
         <!-- New Section: Duration (How Many Days) -->
         <Label layoutX="50" layoutY="440" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Duration (Days):" />
