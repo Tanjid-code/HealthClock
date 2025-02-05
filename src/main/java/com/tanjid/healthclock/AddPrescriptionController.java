@@ -11,6 +11,10 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class AddPrescriptionController {
     @FXML
@@ -22,12 +26,17 @@ public class AddPrescriptionController {
 
     private File selectedImageFile;
 
+    // Database connection details
+    private static final String URL = "jdbc:mysql://localhost:3306/prescription_db";
+    private static final String USER = "root"; // Change if needed
+    private static final String PASSWORD = ""; // Set your MySQL password
+
     @FXML
     private void initialize() {
-        // Set the default image or placeholder
+        // Set the default image
         prescriptionImageView.setImage(new Image(getClass().getResourceAsStream("choose_image_icon.png")));
 
-        // Make the image clickable (acting as a button to upload image)
+        // Make image clickable for upload
         prescriptionImageView.setOnMouseClicked(event -> uploadImage());
     }
 
@@ -39,9 +48,9 @@ public class AddPrescriptionController {
         selectedImageFile = fileChooser.showOpenDialog(null);
 
         if (selectedImageFile != null) {
-            // Set the selected image to the ImageView without resizing
+            // Set the selected image in ImageView
             Image image = new Image(selectedImageFile.toURI().toString());
-            prescriptionImageView.setImage(image);  // Update the image while keeping the same size
+            prescriptionImageView.setImage(image);
         }
     }
 
@@ -52,16 +61,30 @@ public class AddPrescriptionController {
         boolean morning = morningCheck.isSelected();
         boolean afternoon = afternoonCheck.isSelected();
         boolean evening = eveningCheck.isSelected();
+        String imagePath = selectedImageFile != null ? selectedImageFile.getAbsolutePath() : null;
 
         if (patientName.isEmpty() || medicineName.isEmpty()) {
             showAlert("Error", "Please fill all required fields.");
             return;
         }
 
-        // Here, you would save this data to a database or file
-        System.out.println("Saved Prescription: " + patientName + " - " + medicineName + " | Morning: " + morning + " | Afternoon: " + afternoon + " | Evening: " + evening);
+        // Save to database
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(
+                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path) VALUES (?, ?, ?, ?, ?, ?)")) {
+            pstmt.setString(1, patientName);
+            pstmt.setString(2, medicineName);
+            pstmt.setBoolean(3, morning);
+            pstmt.setBoolean(4, afternoon);
+            pstmt.setBoolean(5, evening);
+            pstmt.setString(6, imagePath); // Allow NULL value for image path
 
-        showAlert("Success", "Prescription saved successfully!");
+            pstmt.executeUpdate();
+            showAlert("Success", "Prescription saved successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to save prescription.");
+        }
     }
 
     @FXML
