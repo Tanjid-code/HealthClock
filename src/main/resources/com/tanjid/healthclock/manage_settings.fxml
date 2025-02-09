@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane style="-fx-background-color: linear-gradient(to right, #c9d6ff, #e2e2e2); -fx-padding: 20;"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.tanjid.healthclock.ManageSettingsController">
+    <children>
+        <!-- Back Button -->
+        <Button fx:id="backButton" layoutX="20" layoutY="360" text="⬅ Back"
+                onAction="#goBackToHome"
+                style="-fx-background-color: #007bff;
+                       -fx-text-fill: white;
+                       -fx-font-size: 14px;
+                       -fx-font-weight: bold;
+                       -fx-padding: 8 20;
+                       -fx-background-radius: 10;
+                       -fx-cursor: hand;"/>
+
+        <!-- Project Details -->
+        <Text layoutX="50" layoutY="80" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #333;"
+              text="🚀 Project Details:" />
+        <Label layoutX="50" layoutY="120" style="-fx-font-size: 14px; -fx-text-fill: #555;"
+               text="HealthClock helps manage prescriptions and set medicine alarms." />
+        <Label layoutX="50" layoutY="150" style="-fx-font-size: 14px; -fx-text-fill: #555;"
+               text="It allows users to upload prescription images and store details." />
+
+        <!-- About Me Section -->
+        <Text layoutX="50" layoutY="200" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #333;"
+              text="👨‍💻 About Me:" />
+        <Label layoutX="50" layoutY="240" style="-fx-font-size: 14px; -fx-text-fill: #555;"
+               text="Developed by Tanjid, a passionate developer interested in health tech." />
+        <Label layoutX="50" layoutY="270" style="-fx-font-size: 14px; -fx-text-fill: #555;"
+               text="I love creating applications that make a positive impact." />
+    </children>
+</AnchorPane>

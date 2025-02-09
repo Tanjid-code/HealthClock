@@ -1,5 +1,6 @@
 package com.tanjid.healthclock;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,7 +18,7 @@ public class HelloController {
     private ImageView logoImage;
 
     @FXML
-    private Text quoteText;  // Changed from quoteLabel to quoteText to match the FXML file.
+    private Text quoteText;  // Corrected to match the FXML file.
 
     @FXML
     private Button btnAddPrescription, btnViewMedicines, btnManageSettings;
@@ -34,7 +35,7 @@ public class HelloController {
     protected void onAddPrescription() {
         try {
             // Get the current stage
-            Stage stage = (Stage) quoteText.getScene().getWindow();  // Changed quoteLabel to quoteText
+            Stage stage = (Stage) quoteText.getScene().getWindow();  // Use quoteText reference
 
             if (stage != null) {
                 // Load the Add Prescription page
@@ -50,7 +51,7 @@ public class HelloController {
                 System.out.println("Stage is null. Unable to navigate.");
             }
         } catch (IOException e) {
-            System.out.println("Error loading add-prescription.fxml: " + e.getMessage());
+            System.out.println("Error loading add_prescription.fxml: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -59,13 +60,29 @@ public class HelloController {
     @FXML
     private void handleViewMedicinesClick() {
         System.out.println("View Medicines & Alarm button clicked!");
-        // Logic to navigate to view medicines and alarm page
+        // Logic to navigate to the View Medicines and Alarm page
     }
 
     // Handle Manage Settings Button Click
     @FXML
-    private void handleManageSettingsClick() {
-        System.out.println("Manage Settings button clicked!");
-        // Logic to navigate to settings page
+
+    public void onManageSettings(ActionEvent actionEvent) {
+        try {
+            // Get the current stage
+            Stage stage = (Stage) quoteText.getScene().getWindow();  // Corrected to quoteText
+
+            // Load the Manage Settings page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("manage_settings.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            // Set the new scene
+            stage.setScene(scene);
+            stage.show();
+
+            System.out.println("Navigated to Manage Settings Page.");
+        } catch (IOException e) {
+            System.out.println("Error loading manage_settings.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
