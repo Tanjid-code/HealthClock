@@ -21,7 +21,7 @@
     <!-- Button 1 - Add Prescription -->
     <Button fx:id="addPrescriptionButton" text="Add Prescription" layoutX="150" layoutY="200"
             onAction="#onAddPrescription" styleClass="primary-button" />
-
+z
     <!-- Button 2 - View Medicines & Alarms -->
     <Button fx:id="viewMedicinesButton" text="View Medicines & Alarms" layoutX="150" layoutY="250"
             onAction="#onViewMedicines" styleClass="primary-button" />

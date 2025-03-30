@@ -56,16 +56,34 @@ public class HelloController {
         }
     }
 
-    // Handle View Medicines & Alarm Button Click
+    // Handle View Medicines & Alarm Button Click (Updated for New Page)
     @FXML
-    private void handleViewMedicinesClick() {
-        System.out.println("View Medicines & Alarm button clicked!");
-        // Logic to navigate to the View Medicines and Alarm page
+    protected void handleViewMedicinesClick() {
+        try {
+            // Get the current stage
+            Stage stage = (Stage) btnViewMedicines.getScene().getWindow();
+
+            if (stage != null) {
+                // Load the View Medicines & Alarms page
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("view-medicines.fxml"));
+                Scene scene = new Scene(loader.load());
+
+                // Set the new scene
+                stage.setScene(scene);
+                stage.show();
+
+                System.out.println("Navigated to View Medicines & Alarms Page.");
+            } else {
+                System.out.println("Stage is null. Unable to navigate.");
+            }
+        } catch (IOException e) {
+            System.out.println("Error loading view_medicines.fxml: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // Handle Manage Settings Button Click
     @FXML
-
     public void onManageSettings(ActionEvent actionEvent) {
         try {
             // Get the current stage

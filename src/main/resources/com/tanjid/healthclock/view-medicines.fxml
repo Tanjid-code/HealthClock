@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.tanjid.healthclock.ViewMedicinesController"
+            prefWidth="600" prefHeight="400"
+            style="-fx-background-color: #f0f8ff;">
+    <children>
+        <!-- Back Button -->
+        <Button layoutX="20" layoutY="20" text="Back to Home" onAction="#goBackToHome"
+                style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 8px; -fx-background-radius: 10px;"/>
+    </children>
+</AnchorPane>

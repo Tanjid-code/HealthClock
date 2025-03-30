@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+
+<AnchorPane fx:controller="com.tanjid.healthclock.ViewMedicinesController"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@style.css"
+            prefWidth="700" prefHeight="500">
+
+    <!-- Title -->
+    <Label text="View Medicines & Alarms" layoutX="250" layoutY="20" styleClass="title-label"/>
+
+    <!-- Search Field -->
+    <TextField fx:id="searchField" layoutX="50" layoutY="60" prefWidth="300" promptText="Search by patient or medicine"/>
+    <Button text="Search" layoutX="360" layoutY="60" onAction="#searchPrescriptions"/>
+
+    <!-- Table View -->
+    <TableView fx:id="medicinesTable" layoutX="50" layoutY="100" prefWidth="600" prefHeight="300">
+        <columns>
+            <TableColumn fx:id="colPatientName" text="Patient Name" prefWidth="150"/>
+            <TableColumn fx:id="colMedicineName" text="Medicine Name" prefWidth="150"/>
+            <TableColumn fx:id="colMorning" text="Morning" prefWidth="70"/>
+            <TableColumn fx:id="colAfternoon" text="Afternoon" prefWidth="70"/>
+            <TableColumn fx:id="colEvening" text="Evening" prefWidth="70"/>
+            <TableColumn fx:id="colDate" text="Date" prefWidth="120"/>
+        </columns>
+    </TableView>
+
+    <!-- Buttons -->
+    <Button text="Edit" layoutX="50" layoutY="420" onAction="#editPrescription"/>
+    <Button text="Delete" layoutX="120" layoutY="420" onAction="#deletePrescription"/>
+    <Button text="Back" layoutX="190" layoutY="420" onAction="#goBack"/>
+
+</AnchorPane>
