@@ -8,9 +8,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.stage.Stage;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory; // Add this import
 
 import java.io.IOException;
 import java.sql.*;
@@ -25,11 +24,14 @@ public class ViewMedicinesController {
     @FXML private TableColumn<Prescription, Boolean> eveningCol;
     @FXML private TableColumn<Prescription, String> imagePathCol;
 
+    @FXML private TextField searchField;
+
     private static final String URL = "jdbc:mysql://localhost:3306/prescription_db";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    // Initialize method runs automatically after FXML is loaded
+    private ObservableList<Prescription> allPrescriptions = FXCollections.observableArrayList();
+
     @FXML
     public void initialize() {
         // Link table columns to Prescription model properties
@@ -40,14 +42,12 @@ public class ViewMedicinesController {
         eveningCol.setCellValueFactory(new PropertyValueFactory<>("evening"));
         imagePathCol.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
 
-        // Load data from DB
+        // Load data from the database
         loadPrescriptionData();
     }
 
-    // Load all prescription data from the database
     private void loadPrescriptionData() {
-        ObservableList<Prescription> data = FXCollections.observableArrayList();
-
+        allPrescriptions.clear();
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM prescriptions")) {
@@ -61,17 +61,15 @@ public class ViewMedicinesController {
                         rs.getBoolean("evening"),
                         rs.getString("image_path")
                 );
-                data.add(p);
+                allPrescriptions.add(p);
             }
 
-            prescriptionTable.setItems(data);
+            prescriptionTable.setItems(allPrescriptions);
         } catch (SQLException e) {
             System.out.println("Database error: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    // Back to home button logic
     @FXML
     private void goBackToHome(ActionEvent event) {
         try {
@@ -80,17 +78,89 @@ public class ViewMedicinesController {
             Scene scene = new Scene(loader.load());
             stage.setScene(scene);
             stage.show();
-            System.out.println("Navigated back to Home Page.");
         } catch (IOException e) {
             System.out.println("Error loading home-view.fxml: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    // Optional: Search logic placeholder
     @FXML
     private void searchMedicines(ActionEvent event) {
-        System.out.println("Search Medicines button clicked!");
-        // You can later add search functionality here if needed
+        String keyword = searchField.getText().toLowerCase();
+        if (keyword.isEmpty()) {
+            prescriptionTable.setItems(allPrescriptions);
+            return;
+        }
+
+        ObservableList<Prescription> filtered = FXCollections.observableArrayList();
+        for (Prescription p : allPrescriptions) {
+            if (p.getPatientName().toLowerCase().contains(keyword) ||
+                    p.getMedicineName().toLowerCase().contains(keyword)) {
+                filtered.add(p);
+            }
+        }
+
+        prescriptionTable.setItems(filtered);
+    }
+
+    @FXML
+    private void deleteSelected(ActionEvent event) {
+        Prescription selected = prescriptionTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a prescription to delete.");
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM prescriptions WHERE patient_name = ? AND medicine_name = ?")) {
+
+            stmt.setString(1, selected.getPatientName());
+            stmt.setString(2, selected.getMedicineName());
+            stmt.executeUpdate();
+
+            allPrescriptions.remove(selected);
+            prescriptionTable.refresh();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription deleted successfully.");
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Could not delete prescription.");
+        }
+    }
+
+    @FXML
+    private void editSelected(ActionEvent event) {
+        Prescription selected = prescriptionTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a prescription to edit.");
+            return;
+        }
+
+        TextInputDialog dialog = new TextInputDialog(selected.getMedicineName());
+        dialog.setTitle("Edit Medicine");
+        dialog.setHeaderText("Edit medicine name for " + selected.getPatientName());
+        dialog.setContentText("New medicine name:");
+
+        dialog.showAndWait().ifPresent(newName -> {
+            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE prescriptions SET medicine_name = ? WHERE patient_name = ? AND medicine_name = ?")) {
+
+                stmt.setString(1, newName);
+                stmt.setString(2, selected.getPatientName());
+                stmt.setString(3, selected.getMedicineName());
+                stmt.executeUpdate();
+
+                selected.setMedicineName(newName);
+                prescriptionTable.refresh();
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Medicine name updated.");
+            } catch (SQLException e) {
+                showAlert(Alert.AlertType.ERROR, "Error", "Could not update medicine.");
+            }
+        });
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

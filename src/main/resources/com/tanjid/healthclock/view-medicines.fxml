@@ -3,32 +3,52 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.tanjid.healthclock.ViewMedicinesController"
-            prefWidth="800" prefHeight="500"
+            prefWidth="800" prefHeight="520"
             style="-fx-background-color: #f0f8ff;">
+
     <children>
 
         <!-- Back Button -->
         <Button layoutX="20" layoutY="20" text="Back to Home" onAction="#goBackToHome"
                 style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px;
-                       -fx-padding: 8px; -fx-background-radius: 10px;"/>
+                       -fx-padding: 8px; -fx-background-radius: 10px;" />
 
-        <!-- TableView for displaying prescription data -->
-        <TableView fx:id="prescriptionTable" layoutX="20" layoutY="70" prefWidth="760" prefHeight="400">
+        <!-- Search Field -->
+        <TextField fx:id="searchField" layoutX="500" layoutY="20" prefWidth="180" promptText="Search..."
+                   style="-fx-font-size: 14px; -fx-background-radius: 8px;" />
+
+        <!-- Search Button -->
+        <Button layoutX="690" layoutY="20" text="Search" onAction="#searchMedicines"
+                style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 6px; -fx-background-radius: 10px;" />
+
+        <!-- TableView -->
+        <TableView fx:id="prescriptionTable" layoutX="20" layoutY="70" prefWidth="760" prefHeight="370">
             <columns>
-                <TableColumn fx:id="patientNameCol" text="Patient Name" prefWidth="120"/>
-                <TableColumn fx:id="medicineNameCol" text="Medicine Name" prefWidth="120"/>
-                <TableColumn fx:id="morningCol" text="Morning" prefWidth="80"/>
-                <TableColumn fx:id="afternoonCol" text="Afternoon" prefWidth="80"/>
-                <TableColumn fx:id="eveningCol" text="Evening" prefWidth="80"/>
-                <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="280"/>
+                <TableColumn fx:id="patientNameCol" text="Patient Name" prefWidth="120" />
+                <TableColumn fx:id="medicineNameCol" text="Medicine Name" prefWidth="120" />
+                <TableColumn fx:id="morningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="afternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="eveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="280" />
             </columns>
         </TableView>
+
+        <!-- Edit Button -->
+        <Button layoutX="20" layoutY="460" text="Edit Selected" onAction="#editSelected"
+                style="-fx-background-color: #FFA500; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 8px; -fx-background-radius: 10px;" />
+
+        <!-- Delete Button -->
+        <Button layoutX="160" layoutY="460" text="Delete Selected" onAction="#deleteSelected"
+                style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px;
+                       -fx-padding: 8px; -fx-background-radius: 10px;" />
 
     </children>
 </AnchorPane>
