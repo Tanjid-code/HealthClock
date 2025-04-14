@@ -22,8 +22,9 @@ public class ViewMedicinesController {
     @FXML private TableColumn<Prescription, Boolean> morningCol;
     @FXML private TableColumn<Prescription, Boolean> afternoonCol;
     @FXML private TableColumn<Prescription, Boolean> eveningCol;
-    @FXML private TableColumn<Prescription, Integer> durationCol; // New column
+    @FXML private TableColumn<Prescription, Integer> durationCol;
     @FXML private TableColumn<Prescription, String> imagePathCol;
+    @FXML private TableColumn<Prescription, String> endDateCol;
 
     @FXML private TextField searchField;
 
@@ -41,10 +42,10 @@ public class ViewMedicinesController {
         morningCol.setCellValueFactory(new PropertyValueFactory<>("morning"));
         afternoonCol.setCellValueFactory(new PropertyValueFactory<>("afternoon"));
         eveningCol.setCellValueFactory(new PropertyValueFactory<>("evening"));
-        durationCol.setCellValueFactory(new PropertyValueFactory<>("duration")); // Set duration
+        durationCol.setCellValueFactory(new PropertyValueFactory<>("duration"));
         imagePathCol.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
+        endDateCol.setCellValueFactory(new PropertyValueFactory<>("endDate")); // New column for end date
 
-        // Load data from the database
         loadPrescriptionData();
     }
 
@@ -61,8 +62,9 @@ public class ViewMedicinesController {
                         rs.getBoolean("morning"),
                         rs.getBoolean("afternoon"),
                         rs.getBoolean("evening"),
-                        rs.getInt("duration"), // New
-                        rs.getString("image_path")
+                        rs.getInt("duration"),
+                        rs.getString("image_path"),
+                        rs.getString("end_date") // Load end date
                 );
                 allPrescriptions.add(p);
             }

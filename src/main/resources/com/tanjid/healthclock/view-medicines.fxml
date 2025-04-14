@@ -38,6 +38,7 @@
                 <TableColumn fx:id="eveningCol" text="Evening" prefWidth="80" />
                 <TableColumn fx:id="durationCol" text="Duration (days)" prefWidth="100" />
                 <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="180" />
+                <TableColumn fx:id="endDateCol" text="End Date" prefWidth="100" /> <!-- Added this line -->
             </columns>
         </TableView>
 
