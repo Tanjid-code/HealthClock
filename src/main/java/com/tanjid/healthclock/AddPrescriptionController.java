@@ -11,10 +11,8 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 
 public class AddPrescriptionController {
     @FXML
@@ -33,10 +31,7 @@ public class AddPrescriptionController {
 
     @FXML
     private void initialize() {
-        // Set the default image
         prescriptionImageView.setImage(new Image(getClass().getResourceAsStream("choose_image_icon.png")));
-
-        // Make image clickable for upload
         prescriptionImageView.setOnMouseClicked(event -> uploadImage());
     }
 
@@ -75,19 +70,25 @@ public class AddPrescriptionController {
             return;
         }
 
+        // ✅ Calculate end date
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(duration);  // Add duration to today's date
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(
-                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path, duration) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path, duration, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+
             pstmt.setString(1, patientName);
             pstmt.setString(2, medicineName);
             pstmt.setBoolean(3, morning);
             pstmt.setBoolean(4, afternoon);
             pstmt.setBoolean(5, evening);
             pstmt.setString(6, imagePath);
-            pstmt.setInt(7, duration); // New field
+            pstmt.setInt(7, duration);
+            pstmt.setDate(8, Date.valueOf(endDate));  // ✅ Save as SQL DATE
 
             pstmt.executeUpdate();
-            showAlert("Success", "Prescription saved successfully!");
+            showAlert("Success", "Prescription saved successfully!\nEnd date: " + endDate);
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to save prescription.");
