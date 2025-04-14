@@ -20,7 +20,7 @@ public class AddPrescriptionController {
     @FXML
     private ImageView prescriptionImageView;
     @FXML
-    private TextField patientNameField, medicineNameField;
+    private TextField patientNameField, medicineNameField, durationField;
     @FXML
     private CheckBox morningCheck, afternoonCheck, eveningCheck;
 
@@ -42,13 +42,11 @@ public class AddPrescriptionController {
 
     @FXML
     private void uploadImage() {
-        // Open file chooser to select an image
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
         selectedImageFile = fileChooser.showOpenDialog(null);
 
         if (selectedImageFile != null) {
-            // Set the selected image in ImageView
             Image image = new Image(selectedImageFile.toURI().toString());
             prescriptionImageView.setImage(image);
         }
@@ -58,26 +56,35 @@ public class AddPrescriptionController {
     private void savePrescription() {
         String patientName = patientNameField.getText();
         String medicineName = medicineNameField.getText();
+        String durationText = durationField.getText();
         boolean morning = morningCheck.isSelected();
         boolean afternoon = afternoonCheck.isSelected();
         boolean evening = eveningCheck.isSelected();
         String imagePath = selectedImageFile != null ? selectedImageFile.getAbsolutePath() : null;
 
-        if (patientName.isEmpty() || medicineName.isEmpty()) {
+        if (patientName.isEmpty() || medicineName.isEmpty() || durationText.isEmpty()) {
             showAlert("Error", "Please fill all required fields.");
             return;
         }
 
-        // Save to database
+        int duration;
+        try {
+            duration = Integer.parseInt(durationText);
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Duration must be a number.");
+            return;
+        }
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(
-                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path) VALUES (?, ?, ?, ?, ?, ?)")) {
+                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path, duration) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
             pstmt.setString(1, patientName);
             pstmt.setString(2, medicineName);
             pstmt.setBoolean(3, morning);
             pstmt.setBoolean(4, afternoon);
             pstmt.setBoolean(5, evening);
-            pstmt.setString(6, imagePath); // Allow NULL value for image path
+            pstmt.setString(6, imagePath);
+            pstmt.setInt(7, duration); // New field
 
             pstmt.executeUpdate();
             showAlert("Success", "Prescription saved successfully!");

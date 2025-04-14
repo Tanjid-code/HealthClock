@@ -36,7 +36,8 @@
                 <TableColumn fx:id="morningCol" text="Morning" prefWidth="80" />
                 <TableColumn fx:id="afternoonCol" text="Afternoon" prefWidth="80" />
                 <TableColumn fx:id="eveningCol" text="Evening" prefWidth="80" />
-                <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="280" />
+                <TableColumn fx:id="durationCol" text="Duration (days)" prefWidth="100" />
+                <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="180" />
             </columns>
         </TableView>
 

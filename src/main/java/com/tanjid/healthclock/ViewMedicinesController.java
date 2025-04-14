@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory; // Add this import
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.IOException;
 import java.sql.*;
@@ -22,6 +22,7 @@ public class ViewMedicinesController {
     @FXML private TableColumn<Prescription, Boolean> morningCol;
     @FXML private TableColumn<Prescription, Boolean> afternoonCol;
     @FXML private TableColumn<Prescription, Boolean> eveningCol;
+    @FXML private TableColumn<Prescription, Integer> durationCol; // New column
     @FXML private TableColumn<Prescription, String> imagePathCol;
 
     @FXML private TextField searchField;
@@ -40,6 +41,7 @@ public class ViewMedicinesController {
         morningCol.setCellValueFactory(new PropertyValueFactory<>("morning"));
         afternoonCol.setCellValueFactory(new PropertyValueFactory<>("afternoon"));
         eveningCol.setCellValueFactory(new PropertyValueFactory<>("evening"));
+        durationCol.setCellValueFactory(new PropertyValueFactory<>("duration")); // Set duration
         imagePathCol.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
 
         // Load data from the database
@@ -59,6 +61,7 @@ public class ViewMedicinesController {
                         rs.getBoolean("morning"),
                         rs.getBoolean("afternoon"),
                         rs.getBoolean("evening"),
+                        rs.getInt("duration"), // New
                         rs.getString("image_path")
                 );
                 allPrescriptions.add(p);

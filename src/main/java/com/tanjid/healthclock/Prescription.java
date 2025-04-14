@@ -4,25 +4,28 @@ import javafx.beans.property.*;
 
 public class Prescription {
 
-    // Use JavaFX properties for data binding
+    // JavaFX properties for data binding
     private final StringProperty patientName;
     private final StringProperty medicineName;
     private final BooleanProperty morning;
     private final BooleanProperty afternoon;
     private final BooleanProperty evening;
+    private final IntegerProperty duration; // ✅ New duration field
     private final StringProperty imagePath;
 
-    // Constructor
-    public Prescription(String patientName, String medicineName, boolean morning, boolean afternoon, boolean evening, String imagePath) {
+    // ✅ Updated Constructor with duration
+    public Prescription(String patientName, String medicineName, boolean morning, boolean afternoon, boolean evening, int duration, String imagePath) {
         this.patientName = new SimpleStringProperty(patientName);
         this.medicineName = new SimpleStringProperty(medicineName);
         this.morning = new SimpleBooleanProperty(morning);
         this.afternoon = new SimpleBooleanProperty(afternoon);
         this.evening = new SimpleBooleanProperty(evening);
+        this.duration = new SimpleIntegerProperty(duration); // ✅
         this.imagePath = new SimpleStringProperty(imagePath);
     }
 
-    // Getters for properties (for use in JavaFX binding)
+    // Getters and property accessors
+
     public String getPatientName() {
         return patientName.get();
     }
@@ -59,6 +62,17 @@ public class Prescription {
     }
     public BooleanProperty eveningProperty() {
         return evening;
+    }
+
+    // ✅ Duration getter and property
+    public int getDuration() {
+        return duration.get();
+    }
+    public void setDuration(int duration) {
+        this.duration.set(duration);
+    }
+    public IntegerProperty durationProperty() {
+        return duration;
     }
 
     public String getImagePath() {
