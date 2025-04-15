@@ -11,6 +11,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.*;
+import java.time.LocalDate;
 
 public class HelloController {
 
@@ -18,34 +20,50 @@ public class HelloController {
     private ImageView logoImage;
 
     @FXML
-    private Text quoteText;  // Corrected to match the FXML file.
+    private Text quoteText;
 
     @FXML
     private Button btnAddPrescription, btnViewMedicines, btnManageSettings;
 
+    private static final String URL = "jdbc:mysql://localhost:3306/prescription_db";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
+
     @FXML
     public void initialize() {
-        // Load the logo image
+        // Load logo image
         Image image = new Image(getClass().getResourceAsStream("icon.png"));
         logoImage.setImage(image);
+
+        // Delete expired prescriptions
+        deleteExpiredPrescriptions();
     }
 
-    // Handle Add Prescription Button Click
+    private void deleteExpiredPrescriptions() {
+        String currentDate = LocalDate.now().toString();  // yyyy-MM-dd format
+
+        String sql = "DELETE FROM prescriptions WHERE end_date < ?";
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, currentDate);
+            int deletedRows = stmt.executeUpdate();
+
+            System.out.println("Expired prescriptions deleted: " + deletedRows);
+        } catch (SQLException e) {
+            System.out.println("Error deleting expired prescriptions: " + e.getMessage());
+        }
+    }
+
     @FXML
     protected void onAddPrescription() {
         try {
-            // Get the current stage
-            Stage stage = (Stage) quoteText.getScene().getWindow();  // Use quoteText reference
-
+            Stage stage = (Stage) quoteText.getScene().getWindow();
             if (stage != null) {
-                // Load the Add Prescription page
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("add_prescription.fxml"));
                 Scene scene = new Scene(loader.load());
-
-                // Set the new scene
                 stage.setScene(scene);
                 stage.show();
-
                 System.out.println("Navigated to Add Prescription Page.");
             } else {
                 System.out.println("Stage is null. Unable to navigate.");
@@ -56,22 +74,15 @@ public class HelloController {
         }
     }
 
-    // Handle View Medicines & Alarm Button Click (Updated for New Page)
     @FXML
     protected void handleViewMedicinesClick() {
         try {
-            // Get the current stage
             Stage stage = (Stage) btnViewMedicines.getScene().getWindow();
-
             if (stage != null) {
-                // Load the View Medicines & Alarms page
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("view-medicines.fxml"));
                 Scene scene = new Scene(loader.load());
-
-                // Set the new scene
                 stage.setScene(scene);
                 stage.show();
-
                 System.out.println("Navigated to View Medicines & Alarms Page.");
             } else {
                 System.out.println("Stage is null. Unable to navigate.");
@@ -82,21 +93,14 @@ public class HelloController {
         }
     }
 
-    // Handle Manage Settings Button Click
     @FXML
     public void onManageSettings(ActionEvent actionEvent) {
         try {
-            // Get the current stage
-            Stage stage = (Stage) quoteText.getScene().getWindow();  // Corrected to quoteText
-
-            // Load the Manage Settings page
+            Stage stage = (Stage) quoteText.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("manage_settings.fxml"));
             Scene scene = new Scene(loader.load());
-
-            // Set the new scene
             stage.setScene(scene);
             stage.show();
-
             System.out.println("Navigated to Manage Settings Page.");
         } catch (IOException e) {
             System.out.println("Error loading manage_settings.fxml: " + e.getMessage());
