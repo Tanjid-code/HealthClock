@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
 
 import java.io.IOException;
 import java.sql.*;
@@ -36,7 +37,6 @@ public class ViewMedicinesController {
 
     @FXML
     public void initialize() {
-        // Link table columns to Prescription model properties
         patientNameCol.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         medicineNameCol.setCellValueFactory(new PropertyValueFactory<>("medicineName"));
         morningCol.setCellValueFactory(new PropertyValueFactory<>("morning"));
@@ -44,7 +44,7 @@ public class ViewMedicinesController {
         eveningCol.setCellValueFactory(new PropertyValueFactory<>("evening"));
         durationCol.setCellValueFactory(new PropertyValueFactory<>("duration"));
         imagePathCol.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
-        endDateCol.setCellValueFactory(new PropertyValueFactory<>("endDate")); // New column for end date
+        endDateCol.setCellValueFactory(new PropertyValueFactory<>("endDate"));
 
         loadPrescriptionData();
     }
@@ -64,7 +64,7 @@ public class ViewMedicinesController {
                         rs.getBoolean("evening"),
                         rs.getInt("duration"),
                         rs.getString("image_path"),
-                        rs.getString("end_date") // Load end date
+                        rs.getString("end_date")
                 );
                 allPrescriptions.add(p);
             }
@@ -138,29 +138,89 @@ public class ViewMedicinesController {
             return;
         }
 
-        TextInputDialog dialog = new TextInputDialog(selected.getMedicineName());
-        dialog.setTitle("Edit Medicine");
-        dialog.setHeaderText("Edit medicine name for " + selected.getPatientName());
-        dialog.setContentText("New medicine name:");
+        // Create fields to edit data (excluding end date)
+        TextField patientField = new TextField(selected.getPatientName());
+        TextField medicineField = new TextField(selected.getMedicineName());
+        CheckBox morningBox = new CheckBox("Morning");
+        morningBox.setSelected(selected.isMorning());
+        CheckBox afternoonBox = new CheckBox("Afternoon");
+        afternoonBox.setSelected(selected.isAfternoon());
+        CheckBox eveningBox = new CheckBox("Evening");
+        eveningBox.setSelected(selected.isEvening());
+        TextField durationField = new TextField(String.valueOf(selected.getDuration()));
+        TextField imagePathField = new TextField(selected.getImagePath());
 
-        dialog.showAndWait().ifPresent(newName -> {
-            try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "UPDATE prescriptions SET medicine_name = ? WHERE patient_name = ? AND medicine_name = ?")) {
+        // Layout for dialog
+        GridPane grid = new GridPane();
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.add(new Label("Patient Name:"), 0, 0);
+        grid.add(patientField, 1, 0);
+        grid.add(new Label("Medicine Name:"), 0, 1);
+        grid.add(medicineField, 1, 1);
+        grid.add(morningBox, 0, 2);
+        grid.add(afternoonBox, 1, 2);
+        grid.add(eveningBox, 2, 2);
+        grid.add(new Label("Duration:"), 0, 3);
+        grid.add(durationField, 1, 3);
+        grid.add(new Label("Image Path:"), 0, 4);
+        grid.add(imagePathField, 1, 4);
 
-                stmt.setString(1, newName);
-                stmt.setString(2, selected.getPatientName());
-                stmt.setString(3, selected.getMedicineName());
-                stmt.executeUpdate();
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Edit Prescription");
+        dialog.getDialogPane().setContent(grid);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-                selected.setMedicineName(newName);
-                prescriptionTable.refresh();
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Medicine name updated.");
-            } catch (SQLException e) {
-                showAlert(Alert.AlertType.ERROR, "Error", "Could not update medicine.");
+        dialog.showAndWait().ifPresent(result -> {
+            if (result == ButtonType.OK) {
+                try {
+                    int duration = Integer.parseInt(durationField.getText());
+
+                    // Calculate new end date
+                    java.time.LocalDate today = java.time.LocalDate.now();
+                    java.time.LocalDate endDate = today.plusDays(duration);
+
+                    try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+                         PreparedStatement stmt = conn.prepareStatement(
+                                 "UPDATE prescriptions SET patient_name = ?, medicine_name = ?, morning = ?, afternoon = ?, evening = ?, duration = ?, image_path = ?, end_date = ? WHERE patient_name = ? AND medicine_name = ?")) {
+
+                        stmt.setString(1, patientField.getText());
+                        stmt.setString(2, medicineField.getText());
+                        stmt.setBoolean(3, morningBox.isSelected());
+                        stmt.setBoolean(4, afternoonBox.isSelected());
+                        stmt.setBoolean(5, eveningBox.isSelected());
+                        stmt.setInt(6, duration);
+                        stmt.setString(7, imagePathField.getText());
+                        stmt.setString(8, endDate.toString()); // Save as yyyy-MM-dd
+                        stmt.setString(9, selected.getPatientName());
+                        stmt.setString(10, selected.getMedicineName());
+
+                        stmt.executeUpdate();
+
+                        // Update object
+                        selected.setPatientName(patientField.getText());
+                        selected.setMedicineName(medicineField.getText());
+                        selected.setMorning(morningBox.isSelected());
+                        selected.setAfternoon(afternoonBox.isSelected());
+                        selected.setEvening(eveningBox.isSelected());
+                        selected.setDuration(duration);
+                        selected.setImagePath(imagePathField.getText());
+                        selected.setEndDate(endDate.toString());
+
+                        prescriptionTable.refresh();
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription updated successfully.");
+
+                    } catch (SQLException e) {
+                        showAlert(Alert.AlertType.ERROR, "Database Error", "Could not update prescription: " + e.getMessage());
+                    }
+
+                } catch (NumberFormatException e) {
+                    showAlert(Alert.AlertType.ERROR, "Invalid Input", "Duration must be a number.");
+                }
             }
         });
     }
+
 
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
