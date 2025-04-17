@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
@@ -18,7 +17,7 @@
         <!-- Prescription Image Display -->
         <ImageView fx:id="prescriptionImageView" fitHeight="180" fitWidth="220" layoutX="110" layoutY="90" style="-fx-border-color: gray; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-cursor: hand;" />
 
-        <!-- Smaller Invisible Button Overlaying the Image -->
+        <!-- Invisible Button for Upload -->
         <Button layoutX="165" layoutY="180" onAction="#uploadImage" prefHeight="50" prefWidth="170" style="-fx-background-color: transparent;" />
 
         <!-- Patient Name -->
@@ -29,17 +28,22 @@
         <Label layoutX="50" layoutY="360" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Medicine Name:" />
         <TextField fx:id="medicineNameField" layoutX="160" layoutY="355" prefHeight="27.0" prefWidth="244.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
 
-        <!-- Dosage Timing -->
-        <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing:" />
-        <CheckBox fx:id="morningCheck" layoutX="160" layoutY="400" text="Morning" />
-        <CheckBox fx:id="afternoonCheck" layoutX="240" layoutY="400" text="Afternoon" />
-        <CheckBox fx:id="eveningCheck" layoutX="340" layoutY="400" text="Evening      " />
+        <!-- Real-Time Dosage Timing Inputs -->
+        <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing (24h format):" />
+        <Label layoutX="79.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Morning" />
+        <TextField fx:id="morningTimeField" layoutX="64.0" layoutY="440.0" prefWidth="80" promptText="08:00" />
 
-        <!-- New Section: Duration (How Many Days) -->
-        <Label layoutX="50" layoutY="440" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Duration (Days):" />
-        <TextField fx:id="durationField" layoutX="160" layoutY="435" prefWidth="80" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+        <Label layoutX="187.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Afternoon" />
+        <TextField fx:id="afternoonTimeField" layoutX="177.0" layoutY="440.0" prefWidth="80" promptText="14:00" />
+
+        <Label layoutX="306.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Evening" />
+        <TextField fx:id="eveningTimeField" layoutX="290.0" layoutY="440.0" prefWidth="80" promptText="20:00" />
+
+        <!-- Duration -->
+        <Label layoutX="50.0" layoutY="479.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Duration (Days):" />
+        <TextField fx:id="durationField" layoutX="172.0" layoutY="476.0" prefWidth="60" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
 
         <!-- Save Button -->
-        <Button layoutX="150" layoutY="480" onAction="#savePrescription" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-background-radius: 10px;" text="Save Prescription" />
+        <Button layoutX="144.0" layoutY="514.0" onAction="#savePrescription" prefHeight="36.0" prefWidth="117.0" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-background-radius: 10px;" text="Save Prescription" />
     </children>
 </AnchorPane>

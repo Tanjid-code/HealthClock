@@ -20,9 +20,9 @@ public class ViewMedicinesController {
     @FXML private TableView<Prescription> prescriptionTable;
     @FXML private TableColumn<Prescription, String> patientNameCol;
     @FXML private TableColumn<Prescription, String> medicineNameCol;
-    @FXML private TableColumn<Prescription, Boolean> morningCol;
-    @FXML private TableColumn<Prescription, Boolean> afternoonCol;
-    @FXML private TableColumn<Prescription, Boolean> eveningCol;
+    @FXML private TableColumn<Prescription, String> morningCol;
+    @FXML private TableColumn<Prescription, String> afternoonCol;
+    @FXML private TableColumn<Prescription, String> eveningCol;
     @FXML private TableColumn<Prescription, Integer> durationCol;
     @FXML private TableColumn<Prescription, String> imagePathCol;
     @FXML private TableColumn<Prescription, String> endDateCol;
@@ -39,9 +39,9 @@ public class ViewMedicinesController {
     public void initialize() {
         patientNameCol.setCellValueFactory(new PropertyValueFactory<>("patientName"));
         medicineNameCol.setCellValueFactory(new PropertyValueFactory<>("medicineName"));
-        morningCol.setCellValueFactory(new PropertyValueFactory<>("morning"));
-        afternoonCol.setCellValueFactory(new PropertyValueFactory<>("afternoon"));
-        eveningCol.setCellValueFactory(new PropertyValueFactory<>("evening"));
+        morningCol.setCellValueFactory(new PropertyValueFactory<>("morningTime"));
+        afternoonCol.setCellValueFactory(new PropertyValueFactory<>("afternoonTime"));
+        eveningCol.setCellValueFactory(new PropertyValueFactory<>("eveningTime"));
         durationCol.setCellValueFactory(new PropertyValueFactory<>("duration"));
         imagePathCol.setCellValueFactory(new PropertyValueFactory<>("imagePath"));
         endDateCol.setCellValueFactory(new PropertyValueFactory<>("endDate"));
@@ -59,9 +59,9 @@ public class ViewMedicinesController {
                 Prescription p = new Prescription(
                         rs.getString("patient_name"),
                         rs.getString("medicine_name"),
-                        rs.getBoolean("morning"),
-                        rs.getBoolean("afternoon"),
-                        rs.getBoolean("evening"),
+                        rs.getString("morning_time"),
+                        rs.getString("afternoon_time"),
+                        rs.getString("evening_time"),
                         rs.getInt("duration"),
                         rs.getString("image_path"),
                         rs.getString("end_date")
@@ -71,7 +71,8 @@ public class ViewMedicinesController {
 
             prescriptionTable.setItems(allPrescriptions);
         } catch (SQLException e) {
-            System.out.println("Database error: " + e.getMessage());
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Could not load data: " + e.getMessage());
         }
     }
 
@@ -84,7 +85,7 @@ public class ViewMedicinesController {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            System.out.println("Error loading home-view.fxml: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Load Error", "Could not load home view.");
         }
     }
 
@@ -116,7 +117,8 @@ public class ViewMedicinesController {
         }
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM prescriptions WHERE patient_name = ? AND medicine_name = ?")) {
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM prescriptions WHERE patient_name = ? AND medicine_name = ?")) {
 
             stmt.setString(1, selected.getPatientName());
             stmt.setString(2, selected.getMedicineName());
@@ -124,7 +126,7 @@ public class ViewMedicinesController {
 
             allPrescriptions.remove(selected);
             prescriptionTable.refresh();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription deleted successfully.");
+            showAlert(Alert.AlertType.INFORMATION, "Deleted", "Prescription deleted successfully.");
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Could not delete prescription.");
         }
@@ -138,19 +140,14 @@ public class ViewMedicinesController {
             return;
         }
 
-        // Create fields to edit data (excluding end date)
         TextField patientField = new TextField(selected.getPatientName());
         TextField medicineField = new TextField(selected.getMedicineName());
-        CheckBox morningBox = new CheckBox("Morning");
-        morningBox.setSelected(selected.isMorning());
-        CheckBox afternoonBox = new CheckBox("Afternoon");
-        afternoonBox.setSelected(selected.isAfternoon());
-        CheckBox eveningBox = new CheckBox("Evening");
-        eveningBox.setSelected(selected.isEvening());
+        TextField morningField = new TextField(selected.getMorningTime());
+        TextField afternoonField = new TextField(selected.getAfternoonTime());
+        TextField eveningField = new TextField(selected.getEveningTime());
         TextField durationField = new TextField(String.valueOf(selected.getDuration()));
         TextField imagePathField = new TextField(selected.getImagePath());
 
-        // Layout for dialog
         GridPane grid = new GridPane();
         grid.setVgap(10);
         grid.setHgap(10);
@@ -158,13 +155,16 @@ public class ViewMedicinesController {
         grid.add(patientField, 1, 0);
         grid.add(new Label("Medicine Name:"), 0, 1);
         grid.add(medicineField, 1, 1);
-        grid.add(morningBox, 0, 2);
-        grid.add(afternoonBox, 1, 2);
-        grid.add(eveningBox, 2, 2);
-        grid.add(new Label("Duration:"), 0, 3);
-        grid.add(durationField, 1, 3);
-        grid.add(new Label("Image Path:"), 0, 4);
-        grid.add(imagePathField, 1, 4);
+        grid.add(new Label("Morning Time:"), 0, 2);
+        grid.add(morningField, 1, 2);
+        grid.add(new Label("Afternoon Time:"), 0, 3);
+        grid.add(afternoonField, 1, 3);
+        grid.add(new Label("Evening Time:"), 0, 4);
+        grid.add(eveningField, 1, 4);
+        grid.add(new Label("Duration:"), 0, 5);
+        grid.add(durationField, 1, 5);
+        grid.add(new Label("Image Path:"), 0, 6);
+        grid.add(imagePathField, 1, 6);
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Prescription");
@@ -175,56 +175,50 @@ public class ViewMedicinesController {
             if (result == ButtonType.OK) {
                 try {
                     int duration = Integer.parseInt(durationField.getText());
-
-                    // Calculate new end date
-                    java.time.LocalDate today = java.time.LocalDate.now();
-                    java.time.LocalDate endDate = today.plusDays(duration);
+                    java.time.LocalDate endDate = java.time.LocalDate.now().plusDays(duration);
 
                     try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
                          PreparedStatement stmt = conn.prepareStatement(
-                                 "UPDATE prescriptions SET patient_name = ?, medicine_name = ?, morning = ?, afternoon = ?, evening = ?, duration = ?, image_path = ?, end_date = ? WHERE patient_name = ? AND medicine_name = ?")) {
+                                 "UPDATE prescriptions SET patient_name = ?, medicine_name = ?, morning_time = ?, afternoon_time = ?, evening_time = ?, duration = ?, image_path = ?, end_date = ? WHERE patient_name = ? AND medicine_name = ?")) {
 
                         stmt.setString(1, patientField.getText());
                         stmt.setString(2, medicineField.getText());
-                        stmt.setBoolean(3, morningBox.isSelected());
-                        stmt.setBoolean(4, afternoonBox.isSelected());
-                        stmt.setBoolean(5, eveningBox.isSelected());
+                        stmt.setString(3, morningField.getText());
+                        stmt.setString(4, afternoonField.getText());
+                        stmt.setString(5, eveningField.getText());
                         stmt.setInt(6, duration);
                         stmt.setString(7, imagePathField.getText());
-                        stmt.setString(8, endDate.toString()); // Save as yyyy-MM-dd
+                        stmt.setString(8, endDate.toString());
                         stmt.setString(9, selected.getPatientName());
                         stmt.setString(10, selected.getMedicineName());
 
                         stmt.executeUpdate();
 
-                        // Update object
                         selected.setPatientName(patientField.getText());
                         selected.setMedicineName(medicineField.getText());
-                        selected.setMorning(morningBox.isSelected());
-                        selected.setAfternoon(afternoonBox.isSelected());
-                        selected.setEvening(eveningBox.isSelected());
+                        selected.setMorningTime(morningField.getText());
+                        selected.setAfternoonTime(afternoonField.getText());
+                        selected.setEveningTime(eveningField.getText());
                         selected.setDuration(duration);
                         selected.setImagePath(imagePathField.getText());
                         selected.setEndDate(endDate.toString());
 
                         prescriptionTable.refresh();
-                        showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription updated successfully.");
-
-                    } catch (SQLException e) {
-                        showAlert(Alert.AlertType.ERROR, "Database Error", "Could not update prescription: " + e.getMessage());
+                        showAlert(Alert.AlertType.INFORMATION, "Updated", "Prescription updated successfully.");
                     }
-
                 } catch (NumberFormatException e) {
                     showAlert(Alert.AlertType.ERROR, "Invalid Input", "Duration must be a number.");
+                } catch (SQLException e) {
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "Could not update prescription.");
                 }
             }
         });
     }
 
-
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
+        alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }

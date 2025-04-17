@@ -6,22 +6,24 @@ public class Prescription {
 
     private final StringProperty patientName;
     private final StringProperty medicineName;
-    private final BooleanProperty morning;
-    private final BooleanProperty afternoon;
-    private final BooleanProperty evening;
+    private final StringProperty morningTime;
+    private final StringProperty afternoonTime;
+    private final StringProperty eveningTime;
     private final IntegerProperty duration;
     private final StringProperty imagePath;
-    private final StringProperty endDate; // ✅ New endDate field
+    private final StringProperty endDate;
 
-    public Prescription(String patientName, String medicineName, boolean morning, boolean afternoon, boolean evening, int duration, String imagePath, String endDate) {
+    public Prescription(String patientName, String medicineName,
+                        String morningTime, String afternoonTime, String eveningTime,
+                        int duration, String imagePath, String endDate) {
         this.patientName = new SimpleStringProperty(patientName);
         this.medicineName = new SimpleStringProperty(medicineName);
-        this.morning = new SimpleBooleanProperty(morning);
-        this.afternoon = new SimpleBooleanProperty(afternoon);
-        this.evening = new SimpleBooleanProperty(evening);
+        this.morningTime = new SimpleStringProperty(morningTime);
+        this.afternoonTime = new SimpleStringProperty(afternoonTime);
+        this.eveningTime = new SimpleStringProperty(eveningTime);
         this.duration = new SimpleIntegerProperty(duration);
         this.imagePath = new SimpleStringProperty(imagePath);
-        this.endDate = new SimpleStringProperty(endDate); // ✅
+        this.endDate = new SimpleStringProperty(endDate);
     }
 
     // Patient Name
@@ -46,37 +48,37 @@ public class Prescription {
         return medicineName;
     }
 
-    // Morning
-    public boolean isMorning() {
-        return morning.get();
+    // Morning Time
+    public String getMorningTime() {
+        return morningTime.get();
     }
-    public void setMorning(boolean morning) {
-        this.morning.set(morning);
+    public void setMorningTime(String morningTime) {
+        this.morningTime.set(morningTime);
     }
-    public BooleanProperty morningProperty() {
-        return morning;
-    }
-
-    // Afternoon
-    public boolean isAfternoon() {
-        return afternoon.get();
-    }
-    public void setAfternoon(boolean afternoon) {
-        this.afternoon.set(afternoon);
-    }
-    public BooleanProperty afternoonProperty() {
-        return afternoon;
+    public StringProperty morningTimeProperty() {
+        return morningTime;
     }
 
-    // Evening
-    public boolean isEvening() {
-        return evening.get();
+    // Afternoon Time
+    public String getAfternoonTime() {
+        return afternoonTime.get();
     }
-    public void setEvening(boolean evening) {
-        this.evening.set(evening);
+    public void setAfternoonTime(String afternoonTime) {
+        this.afternoonTime.set(afternoonTime);
     }
-    public BooleanProperty eveningProperty() {
-        return evening;
+    public StringProperty afternoonTimeProperty() {
+        return afternoonTime;
+    }
+
+    // Evening Time
+    public String getEveningTime() {
+        return eveningTime.get();
+    }
+    public void setEveningTime(String eveningTime) {
+        this.eveningTime.set(eveningTime);
+    }
+    public StringProperty eveningTimeProperty() {
+        return eveningTime;
     }
 
     // Duration
@@ -101,7 +103,7 @@ public class Prescription {
         return imagePath;
     }
 
-    // ✅ End Date
+    // End Date
     public String getEndDate() {
         return endDate.get();
     }

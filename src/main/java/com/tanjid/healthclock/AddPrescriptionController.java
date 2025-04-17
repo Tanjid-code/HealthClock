@@ -13,14 +13,17 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class AddPrescriptionController {
     @FXML
     private ImageView prescriptionImageView;
+
     @FXML
     private TextField patientNameField, medicineNameField, durationField;
     @FXML
-    private CheckBox morningCheck, afternoonCheck, eveningCheck;
+    private TextField morningTimeField, afternoonTimeField, eveningTimeField;
 
     private File selectedImageFile;
 
@@ -52,13 +55,29 @@ public class AddPrescriptionController {
         String patientName = patientNameField.getText();
         String medicineName = medicineNameField.getText();
         String durationText = durationField.getText();
-        boolean morning = morningCheck.isSelected();
-        boolean afternoon = afternoonCheck.isSelected();
-        boolean evening = eveningCheck.isSelected();
+        String morningTime = morningTimeField.getText();
+        String afternoonTime = afternoonTimeField.getText();
+        String eveningTime = eveningTimeField.getText();
         String imagePath = selectedImageFile != null ? selectedImageFile.getAbsolutePath() : null;
 
         if (patientName.isEmpty() || medicineName.isEmpty() || durationText.isEmpty()) {
             showAlert("Error", "Please fill all required fields.");
+            return;
+        }
+
+        // Validate time formats
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
+        if (!morningTime.isEmpty() && !isValidTime(morningTime, timeFormat)) {
+            showAlert("Error", "Morning time must be in HH:mm format (e.g., 08:00).");
+            return;
+        }
+        if (!afternoonTime.isEmpty() && !isValidTime(afternoonTime, timeFormat)) {
+            showAlert("Error", "Afternoon time must be in HH:mm format (e.g., 14:00).");
+            return;
+        }
+        if (!eveningTime.isEmpty() && !isValidTime(eveningTime, timeFormat)) {
+            showAlert("Error", "Evening time must be in HH:mm format (e.g., 20:00).");
             return;
         }
 
@@ -70,28 +89,36 @@ public class AddPrescriptionController {
             return;
         }
 
-        // ✅ Calculate end date
         LocalDate today = LocalDate.now();
-        LocalDate endDate = today.plusDays(duration);  // Add duration to today's date
+        LocalDate endDate = today.plusDays(duration);
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement pstmt = conn.prepareStatement(
-                     "INSERT INTO prescriptions (patient_name, medicine_name, morning, afternoon, evening, image_path, duration, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+                     "INSERT INTO prescriptions (patient_name, medicine_name, morning_time, afternoon_time, evening_time, image_path, duration, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
 
             pstmt.setString(1, patientName);
             pstmt.setString(2, medicineName);
-            pstmt.setBoolean(3, morning);
-            pstmt.setBoolean(4, afternoon);
-            pstmt.setBoolean(5, evening);
+            pstmt.setString(3, morningTime);
+            pstmt.setString(4, afternoonTime);
+            pstmt.setString(5, eveningTime);
             pstmt.setString(6, imagePath);
             pstmt.setInt(7, duration);
-            pstmt.setDate(8, Date.valueOf(endDate));  // ✅ Save as SQL DATE
+            pstmt.setDate(8, Date.valueOf(endDate));
 
             pstmt.executeUpdate();
             showAlert("Success", "Prescription saved successfully!\nEnd date: " + endDate);
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to save prescription.");
+        }
+    }
+
+    private boolean isValidTime(String time, DateTimeFormatter formatter) {
+        try {
+            formatter.parse(time);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
         }
     }
 
