@@ -2,7 +2,8 @@ module com.tanjid.healthclock {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
-    requires java.sql; // Added to allow database connection
+    requires java.sql;
+    requires javafx.media; // ✅ Add this line for sound support
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
