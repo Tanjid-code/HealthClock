@@ -11,9 +11,13 @@ import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.media.AudioClip;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ViewMedicinesController {
 
@@ -26,7 +30,6 @@ public class ViewMedicinesController {
     @FXML private TableColumn<Prescription, Integer> durationCol;
     @FXML private TableColumn<Prescription, String> imagePathCol;
     @FXML private TableColumn<Prescription, String> endDateCol;
-
     @FXML private TextField searchField;
 
     private static final String URL = "jdbc:mysql://localhost:3306/prescription_db";
@@ -34,6 +37,7 @@ public class ViewMedicinesController {
     private static final String PASSWORD = "";
 
     private ObservableList<Prescription> allPrescriptions = FXCollections.observableArrayList();
+    private Timer timer = new Timer(true);
 
     @FXML
     public void initialize() {
@@ -68,8 +72,8 @@ public class ViewMedicinesController {
                 );
                 allPrescriptions.add(p);
             }
-
             prescriptionTable.setItems(allPrescriptions);
+
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Database Error", "Could not load data: " + e.getMessage());
@@ -96,7 +100,6 @@ public class ViewMedicinesController {
             prescriptionTable.setItems(allPrescriptions);
             return;
         }
-
         ObservableList<Prescription> filtered = FXCollections.observableArrayList();
         for (Prescription p : allPrescriptions) {
             if (p.getPatientName().toLowerCase().contains(keyword) ||
@@ -104,7 +107,6 @@ public class ViewMedicinesController {
                 filtered.add(p);
             }
         }
-
         prescriptionTable.setItems(filtered);
     }
 
@@ -161,7 +163,7 @@ public class ViewMedicinesController {
         grid.add(afternoonField, 1, 3);
         grid.add(new Label("Evening Time:"), 0, 4);
         grid.add(eveningField, 1, 4);
-        grid.add(new Label("Duration:"), 0, 5);
+        grid.add(new Label("Duration (days):"), 0, 5);
         grid.add(durationField, 1, 5);
         grid.add(new Label("Image Path:"), 0, 6);
         grid.add(imagePathField, 1, 6);
@@ -175,7 +177,7 @@ public class ViewMedicinesController {
             if (result == ButtonType.OK) {
                 try {
                     int duration = Integer.parseInt(durationField.getText());
-                    java.time.LocalDate endDate = java.time.LocalDate.now().plusDays(duration);
+                    LocalDate endDate = LocalDate.now().plusDays(duration);
 
                     try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
                          PreparedStatement stmt = conn.prepareStatement(
@@ -204,7 +206,11 @@ public class ViewMedicinesController {
                         selected.setEndDate(endDate.toString());
 
                         prescriptionTable.refresh();
-                        showAlert(Alert.AlertType.INFORMATION, "Updated", "Prescription updated successfully.");
+                        showAlert(Alert.AlertType.INFORMATION, "Updated", "Prescription updated successfully!");
+
+                        // Only schedule alarms AFTER successful update
+                        scheduleAllAlarms(selected);
+
                     }
                 } catch (NumberFormatException e) {
                     showAlert(Alert.AlertType.ERROR, "Invalid Input", "Duration must be a number.");
@@ -215,7 +221,55 @@ public class ViewMedicinesController {
         });
     }
 
+    private void scheduleAllAlarms(Prescription prescription) {
+        scheduleAlarm(prescription.getMorningTime(), "Morning medicine for " + prescription.getPatientName());
+        scheduleAlarm(prescription.getAfternoonTime(), "Afternoon medicine for " + prescription.getPatientName());
+        scheduleAlarm(prescription.getEveningTime(), "Evening medicine for " + prescription.getPatientName());
+    }
+
+    private void scheduleAlarm(String time, String message) {
+        if (time == null || time.isEmpty()) return;
+        try {
+            String[] parts = time.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime alarmTime = now.withHour(hour).withMinute(minute).withSecond(0);
+
+            if (alarmTime.isBefore(now)) {
+                alarmTime = alarmTime.plusDays(1); // schedule for next day
+            }
+
+            long delayMillis = Duration.between(now, alarmTime).toMillis();
+
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    javafx.application.Platform.runLater(() -> {
+                        showAlertWithSound(Alert.AlertType.INFORMATION, "Alarm", message);
+                    });
+                }
+            }, delayMillis);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showAlertWithSound(Alert.AlertType type, String title, String content) {
+        String soundUrl = getClass().getResource("alarm.mp3").toString();
+        AudioClip clip = new AudioClip(soundUrl);
+        clip.play();
+
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
