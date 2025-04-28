@@ -276,4 +276,5 @@ public class ViewMedicinesController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
 }
