@@ -10,7 +10,7 @@
             fx:controller="com.tanjid.healthclock.ManageSettingsController">
     <children>
         <!-- Back Button -->
-        <Button fx:id="backButton" layoutX="20" layoutY="360" text="⬅ Back"
+        <Button fx:id="backButton" layoutX="20" layoutY="400" text="⬅ Back"
                 onAction="#goBackToHome"
                 style="-fx-background-color: #007bff;
                        -fx-text-fill: white;
@@ -28,12 +28,14 @@
         <Label layoutX="50" layoutY="150" style="-fx-font-size: 14px; -fx-text-fill: #555;"
                text="It allows users to upload prescription images and store details." />
 
-        <!-- About Me Section -->
+        <!-- About Us Section -->
         <Text layoutX="50" layoutY="200" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #333;"
-              text="👨‍💻 About Me:" />
+              text="👨‍💻 About Us:" />
         <Label layoutX="50" layoutY="240" style="-fx-font-size: 14px; -fx-text-fill: #555;"
-               text="Developed by Tanjid, a passionate developer interested in health tech." />
+               text="Tanjid: Responsible for the core logic and functionality." />
         <Label layoutX="50" layoutY="270" style="-fx-font-size: 14px; -fx-text-fill: #555;"
-               text="I love creating applications that make a positive impact." />
+               text="Sumaya: Handled the database integration and data operations." />
+        <Label layoutX="50" layoutY="300" style="-fx-font-size: 14px; -fx-text-fill: #555;"
+               text="Mim: Designed the user interface and overall look of the app." />
     </children>
 </AnchorPane>

@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane style="-fx-background-color: #f0f8ff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
+<AnchorPane prefHeight="569.0" prefWidth="416.0" style="-fx-background-color: #f0f8ff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
     <children>
         <!-- Back Button -->
         <Button layoutX="20" layoutY="20" onAction="#goBackToHome" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;" text="Back to Home" />
@@ -22,11 +22,11 @@
 
         <!-- Patient Name -->
         <Label layoutX="50" layoutY="320" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Patient Name:" />
-        <TextField fx:id="patientNameField" layoutX="160" layoutY="315" prefHeight="27.0" prefWidth="244.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+        <TextField fx:id="patientNameField" layoutX="160" layoutY="315" prefHeight="27.0" prefWidth="220.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
 
         <!-- Medicine Name -->
         <Label layoutX="50" layoutY="360" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Medicine Name:" />
-        <TextField fx:id="medicineNameField" layoutX="160" layoutY="355" prefHeight="27.0" prefWidth="244.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
+        <TextField fx:id="medicineNameField" layoutX="160" layoutY="355" prefHeight="27.0" prefWidth="220.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
 
         <!-- Real-Time Dosage Timing Inputs -->
         <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing (24h format):" />
