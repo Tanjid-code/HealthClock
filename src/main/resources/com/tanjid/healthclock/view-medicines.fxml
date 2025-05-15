@@ -9,7 +9,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.tanjid.healthclock.ViewMedicinesController"
-            prefWidth="800" prefHeight="520"
+            prefWidth="800" prefHeight="600"
             style="-fx-background-color: #f0f8ff;">
 
     <children>
@@ -29,26 +29,54 @@
                        -fx-padding: 6px; -fx-background-radius: 10px;" />
 
         <!-- TableView -->
-        <TableView fx:id="prescriptionTable" layoutX="20" layoutY="70" prefWidth="760" prefHeight="370">
+        <TableView fx:id="prescriptionTable" layoutX="20" layoutY="70" prefWidth="760" prefHeight="430">
             <columns>
                 <TableColumn fx:id="patientNameCol" text="Patient Name" prefWidth="120" />
-                <TableColumn fx:id="medicineNameCol" text="Medicine Name" prefWidth="120" />
-                <TableColumn fx:id="morningCol" text="Morning" prefWidth="80" />
-                <TableColumn fx:id="afternoonCol" text="Afternoon" prefWidth="80" />
-                <TableColumn fx:id="eveningCol" text="Evening" prefWidth="80" />
-                <TableColumn fx:id="durationCol" text="Duration (days)" prefWidth="100" />
-                <TableColumn fx:id="imagePathCol" text="Image Path" prefWidth="180" />
-                <TableColumn fx:id="endDateCol" text="End Date" prefWidth="100" /> <!-- Added this line -->
+
+                <!-- Medicine 1 -->
+                <TableColumn fx:id="med1NameCol" text="Medicine 1 Name" prefWidth="120" />
+                <TableColumn fx:id="med1MorningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="med1AfternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="med1EveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="med1EndDateCol" text="End Date" prefWidth="100" />
+
+                <!-- Medicine 2 -->
+                <TableColumn fx:id="med2NameCol" text="Medicine 2 Name" prefWidth="120" />
+                <TableColumn fx:id="med2MorningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="med2AfternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="med2EveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="med2EndDateCol" text="End Date" prefWidth="100" />
+
+                <!-- Medicine 3 -->
+                <TableColumn fx:id="med3NameCol" text="Medicine 3 Name" prefWidth="120" />
+                <TableColumn fx:id="med3MorningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="med3AfternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="med3EveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="med3EndDateCol" text="End Date" prefWidth="100" />
+
+                <!-- Medicine 4 -->
+                <TableColumn fx:id="med4NameCol" text="Medicine 4 Name" prefWidth="120" />
+                <TableColumn fx:id="med4MorningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="med4AfternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="med4EveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="med4EndDateCol" text="End Date" prefWidth="100" />
+
+                <!-- Medicine 5 -->
+                <TableColumn fx:id="med5NameCol" text="Medicine 5 Name" prefWidth="120" />
+                <TableColumn fx:id="med5MorningCol" text="Morning" prefWidth="80" />
+                <TableColumn fx:id="med5AfternoonCol" text="Afternoon" prefWidth="80" />
+                <TableColumn fx:id="med5EveningCol" text="Evening" prefWidth="80" />
+                <TableColumn fx:id="med5EndDateCol" text="End Date" prefWidth="100" />
             </columns>
         </TableView>
 
         <!-- Edit Button -->
-        <Button layoutX="20" layoutY="460" text="Edit Selected" onAction="#editSelected"
+        <Button layoutX="20" layoutY="520" text="Edit Selected" onAction="#editSelected"
                 style="-fx-background-color: #FFA500; -fx-text-fill: white; -fx-font-size: 14px;
                        -fx-padding: 8px; -fx-background-radius: 10px;" />
 
         <!-- Delete Button -->
-        <Button layoutX="160" layoutY="460" text="Delete Selected" onAction="#deleteSelected"
+        <Button layoutX="160" layoutY="520" text="Delete Selected" onAction="#deleteSelected"
                 style="-fx-background-color: #f44336; -fx-text-fill: white; -fx-font-size: 14px;
                        -fx-padding: 8px; -fx-background-radius: 10px;" />
 

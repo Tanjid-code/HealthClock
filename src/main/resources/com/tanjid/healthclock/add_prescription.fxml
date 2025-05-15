@@ -1,49 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="569.0" prefWidth="416.0" style="-fx-background-color: #f0f8ff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.AddPrescriptionController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tanjid.healthclock.AddPrescriptionController"
+            prefWidth="420.0" prefHeight="600.0" style="-fx-background-color: #f0f8ff;">
     <children>
         <!-- Back Button -->
-        <Button layoutX="20" layoutY="20" onAction="#goBackToHome" style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;" text="Back to Home" />
+        <Button layoutX="20" layoutY="20" onAction="#goBackToHome"
+                style="-fx-background-color: #ff6666; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 8px; -fx-background-radius: 10px;"
+                text="Back to Home" />
 
-        <!-- Image Upload Section -->
-        <Label layoutX="129.0" layoutY="70.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Upload Prescription Image" />
+        <!-- Scrollable content area -->
+        <ScrollPane layoutX="10" layoutY="60" prefWidth="400.0" prefHeight="530.0" fitToWidth="true" hbarPolicy="NEVER">
+            <content>
+                <VBox fx:id="contentBox" spacing="15.0" style="-fx-padding: 10;">
+                    <!-- Patient Name -->
+                    <Label text="Patient Name:" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
+                    <TextField fx:id="patientNameField" prefWidth="360.0" />
 
-        <!-- Prescription Image Display -->
-        <ImageView fx:id="prescriptionImageView" fitHeight="180" fitWidth="220" layoutX="110" layoutY="90" style="-fx-border-color: gray; -fx-border-width: 2px; -fx-border-radius: 10px; -fx-cursor: hand;" />
+                    <!-- Medicine Entries Container -->
+                    <VBox fx:id="medicineContainer" spacing="10.0" />
 
-        <!-- Invisible Button for Upload -->
-        <Button layoutX="165" layoutY="180" onAction="#uploadImage" prefHeight="50" prefWidth="170" style="-fx-background-color: transparent;" />
+                    <!-- Add Medicine Button -->
+                    <Button fx:id="addMedicineButton" text="Add More Medicine" onAction="#addMedicineEntry"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 10px;"
+                            prefWidth="200" />
 
-        <!-- Patient Name -->
-        <Label layoutX="50" layoutY="320" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Patient Name:" />
-        <TextField fx:id="patientNameField" layoutX="160" layoutY="315" prefHeight="27.0" prefWidth="220.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
-
-        <!-- Medicine Name -->
-        <Label layoutX="50" layoutY="360" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Medicine Name:" />
-        <TextField fx:id="medicineNameField" layoutX="160" layoutY="355" prefHeight="27.0" prefWidth="220.0" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
-
-        <!-- Real-Time Dosage Timing Inputs -->
-        <Label layoutX="50" layoutY="400" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Timing (24h format):" />
-        <Label layoutX="79.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Morning" />
-        <TextField fx:id="morningTimeField" layoutX="64.0" layoutY="440.0" prefWidth="80" promptText="08:00" />
-
-        <Label layoutX="187.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Afternoon" />
-        <TextField fx:id="afternoonTimeField" layoutX="177.0" layoutY="440.0" prefWidth="80" promptText="14:00" />
-
-        <Label layoutX="306.0" layoutY="421.0" style="-fx-font-size: 13px;" text="Evening" />
-        <TextField fx:id="eveningTimeField" layoutX="290.0" layoutY="440.0" prefWidth="80" promptText="20:00" />
-
-        <!-- Duration -->
-        <Label layoutX="50.0" layoutY="479.0" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Duration (Days):" />
-        <TextField fx:id="durationField" layoutX="172.0" layoutY="476.0" prefWidth="60" style="-fx-padding: 5px; -fx-border-radius: 5px;" />
-
-        <!-- Save Button -->
-        <Button layoutX="144.0" layoutY="514.0" onAction="#savePrescription" prefHeight="36.0" prefWidth="117.0" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10px; -fx-background-radius: 10px;" text="Save Prescription" />
+                    <!-- Save All Button -->
+                    <Button fx:id="saveAllButton" text="Save All Data" onAction="#saveAllPrescriptions"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-background-radius: 10px;"
+                            prefWidth="200" />
+                </VBox>
+            </content>
+        </ScrollPane>
     </children>
 </AnchorPane>

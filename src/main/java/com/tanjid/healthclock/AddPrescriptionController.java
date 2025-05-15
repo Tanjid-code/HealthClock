@@ -1,206 +1,178 @@
 package com.tanjid.healthclock;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.media.AudioClip;
-import javafx.stage.FileChooser;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.sql.*;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddPrescriptionController {
-    @FXML
-    private ImageView prescriptionImageView;
 
     @FXML
-    private TextField patientNameField, medicineNameField, durationField;
+    private TextField patientNameField;
+
     @FXML
-    private TextField morningTimeField, afternoonTimeField, eveningTimeField;
+    private VBox medicineContainer;
 
-    private File selectedImageFile;
+    private static final int MAX_MEDICINES = 5;
+    private final List<MedicineEntry> medicineEntries = new ArrayList<>();
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/prescription_db";
+    // Database connection details
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/health_clock";
     private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "";
-
-    private final Timer alarmTimer = new Timer(true);
+    private static final String DB_PASS = "";
 
     @FXML
-    private void initialize() {
-        prescriptionImageView.setImage(new Image(getClass().getResourceAsStream("choose_image_icon.png")));
-        prescriptionImageView.setOnMouseClicked(event -> uploadImage());
+    public void initialize() {
+        addMedicineEntry(); // Add one default entry
     }
 
     @FXML
-    private void uploadImage() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
-        selectedImageFile = fileChooser.showOpenDialog(null);
-
-        if (selectedImageFile != null) {
-            Image image = new Image(selectedImageFile.toURI().toString());
-            prescriptionImageView.setImage(image);
-        }
-    }
-
-    @FXML
-    private void savePrescription() {
-        String patientName = patientNameField.getText().trim();
-        String medicineName = medicineNameField.getText().trim();
-        String durationText = durationField.getText().trim();
-        String morningTime = morningTimeField.getText().trim();
-        String afternoonTime = afternoonTimeField.getText().trim();
-        String eveningTime = eveningTimeField.getText().trim();
-        String imagePath = selectedImageFile != null ? selectedImageFile.getAbsolutePath() : null;
-
-        if (patientName.isEmpty() || medicineName.isEmpty() || durationText.isEmpty()) {
-            showAlert("Error", "Please fill all required fields.");
-            return;
-        }
-
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
-
-        if (!morningTime.isEmpty() && !isValidTime(morningTime, timeFormat)) {
-            showAlert("Error", "Morning time must be in HH:mm format (e.g., 08:00).");
-            return;
-        }
-        if (!afternoonTime.isEmpty() && !isValidTime(afternoonTime, timeFormat)) {
-            showAlert("Error", "Afternoon time must be in HH:mm format (e.g., 14:00).");
-            return;
-        }
-        if (!eveningTime.isEmpty() && !isValidTime(eveningTime, timeFormat)) {
-            showAlert("Error", "Evening time must be in HH:mm format (e.g., 20:00).");
-            return;
-        }
-
-        int duration;
+    private void goBackToHome() {
         try {
-            duration = Integer.parseInt(durationText);
-        } catch (NumberFormatException e) {
-            showAlert("Error", "Duration must be a number.");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/tanjid/healthclock/home-view.fxml"));
+            Parent root = loader.load();
+            Stage stage = (Stage) patientNameField.getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Failed to load home page.");
+        }
+    }
+
+    @FXML
+    private void addMedicineEntry() {
+        if (medicineEntries.size() >= MAX_MEDICINES) return;
+
+        VBox entryBox = new VBox(5);
+        entryBox.setStyle("-fx-border-color: #cccccc; -fx-padding: 10; -fx-background-radius: 5;");
+
+        TextField medicineName = new TextField();
+        medicineName.setPromptText("Medicine Name");
+
+        TextField morningTime = new TextField();
+        morningTime.setPromptText("Morning Time (08:00)");
+
+        TextField afternoonTime = new TextField();
+        afternoonTime.setPromptText("Afternoon Time (14:00)");
+
+        TextField eveningTime = new TextField();
+        eveningTime.setPromptText("Evening Time (20:00)");
+
+        DatePicker endDate = new DatePicker();
+        endDate.setPromptText("End Date");
+
+        entryBox.getChildren().addAll(
+                new Label("Medicine Name:"), medicineName,
+                new Label("Morning Time:"), morningTime,
+                new Label("Afternoon Time:"), afternoonTime,
+                new Label("Evening Time:"), eveningTime,
+                new Label("End Date:"), endDate
+        );
+
+        medicineContainer.getChildren().add(entryBox);
+        medicineEntries.add(new MedicineEntry(medicineName, morningTime, afternoonTime, eveningTime, endDate));
+    }
+
+    @FXML
+    private void saveAllPrescriptions() {
+        String patientName = patientNameField.getText().trim();
+        if (patientName.isEmpty()) {
+            showAlert("Patient name is required.");
             return;
         }
 
-        LocalDate today = LocalDate.now();
-        LocalDate endDate = today.plusDays(duration);
+        String[] names = new String[5];
+        String[] morning = new String[5];
+        String[] afternoon = new String[5];
+        String[] evening = new String[5];
+        java.sql.Date[] endDates = new java.sql.Date[5];
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(
-                     "INSERT INTO prescriptions (patient_name, medicine_name, morning_time, afternoon_time, evening_time, image_path, duration, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
+        for (int i = 0; i < medicineEntries.size(); i++) {
+            MedicineEntry entry = medicineEntries.get(i);
 
-            pstmt.setString(1, patientName);
-            pstmt.setString(2, medicineName);
-            pstmt.setString(3, morningTime);
-            pstmt.setString(4, afternoonTime);
-            pstmt.setString(5, eveningTime);
-            pstmt.setString(6, imagePath);
-            pstmt.setInt(7, duration);
-            pstmt.setDate(8, Date.valueOf(endDate));
+            if (entry.medicineName.getText().trim().isEmpty() || entry.endDate.getValue() == null) {
+                showAlert("Please complete all fields for medicine #" + (i + 1));
+                return;
+            }
 
-            pstmt.executeUpdate();
+            names[i] = entry.medicineName.getText().trim();
+            morning[i] = entry.morningTime.getText().trim();
+            afternoon[i] = entry.afternoonTime.getText().trim();
+            evening[i] = entry.eveningTime.getText().trim();
+            endDates[i] = java.sql.Date.valueOf(entry.endDate.getValue());
+        }
 
-            scheduleAlarms(patientName, medicineName, morningTime, afternoonTime, eveningTime, endDate);
+        String sql = """
+            INSERT INTO patient_prescriptions (
+                patient_name,
+                med1_name, med1_morning_time, med1_afternoon_time, med1_evening_time, med1_end_date,
+                med2_name, med2_morning_time, med2_afternoon_time, med2_evening_time, med2_end_date,
+                med3_name, med3_morning_time, med3_afternoon_time, med3_evening_time, med3_end_date,
+                med4_name, med4_morning_time, med4_afternoon_time, med4_evening_time, med4_end_date,
+                med5_name, med5_morning_time, med5_afternoon_time, med5_evening_time, med5_end_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """;
 
-            showAlert("Success", "Prescription saved successfully!\nEnd date: " + endDate);
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, patientName);
+
+            int index = 2;
+            for (int i = 0; i < 5; i++) {
+                stmt.setString(index++, names[i]);
+                stmt.setString(index++, morning[i]);
+                stmt.setString(index++, afternoon[i]);
+                stmt.setString(index++, evening[i]);
+                stmt.setDate(index++, endDates[i]);
+            }
+
+            stmt.executeUpdate();
+            showAlert("Prescription saved successfully.");
+
+            // Clear form after saving
+            patientNameField.clear();
+            medicineContainer.getChildren().clear();
+            medicineEntries.clear();
+            addMedicineEntry();
+
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Error", "Failed to save prescription.");
+            showAlert("Failed to save prescription: " + e.getMessage());
         }
     }
 
-    private boolean isValidTime(String time, DateTimeFormatter formatter) {
-        try {
-            formatter.parse(time);
-            return true;
-        } catch (DateTimeParseException e) {
-            return false;
-        }
-    }
-
-    private void scheduleAlarms(String patient, String medicine, String morning, String afternoon, String evening, LocalDate endDate) {
-        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
-        LocalDate today = LocalDate.now();
-
-        scheduleAlarmTask("Morning", patient, medicine, morning, timeFormat, today, endDate);
-        scheduleAlarmTask("Afternoon", patient, medicine, afternoon, timeFormat, today, endDate);
-        scheduleAlarmTask("Evening", patient, medicine, evening, timeFormat, today, endDate);
-    }
-
-    private void scheduleAlarmTask(String period, String patient, String medicine, String timeStr, DateTimeFormatter formatter, LocalDate start, LocalDate end) {
-        if (timeStr == null || timeStr.isEmpty()) return;
-
-        try {
-            LocalTime targetTime = LocalTime.parse(timeStr, formatter);
-
-            for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
-                LocalDateTime dateTime = LocalDateTime.of(date, targetTime);
-                long delay = Duration.between(LocalDateTime.now(), dateTime).toMillis();
-
-                if (delay > 0) {
-                    alarmTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            Platform.runLater(() -> {
-                                playAlarmSoundRepeatedly();
-                                showAlert("Alarm", "Time to take " + medicine + " (" + period + ") for patient: " + patient);
-                            });
-                        }
-                    }, delay);
-                }
-            }
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void playAlarmSoundRepeatedly() {
-        try {
-            URL soundURL = getClass().getResource("alarm.mp3");
-            if (soundURL != null) {
-                AudioClip clip = new AudioClip(soundURL.toString());
-                for (int i = 0; i < 10; i++) {
-                    int finalI = i;
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            Platform.runLater(clip::play);
-                        }
-                    }, finalI * 1000L);
-                }
-            } else {
-                System.err.println("Alarm sound file not found.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void goBackToHome() throws IOException {
-        Stage stage = (Stage) prescriptionImageView.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("home-view.fxml"));
-        Scene scene = new Scene(loader.load());
-        stage.setScene(scene);
-    }
-
-    private void showAlert(String title, String message) {
+    private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
+        alert.setTitle("Prescription Info");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private static class MedicineEntry {
+        TextField medicineName;
+        TextField morningTime;
+        TextField afternoonTime;
+        TextField eveningTime;
+        DatePicker endDate;
+
+        MedicineEntry(TextField name, TextField morning, TextField afternoon, TextField evening, DatePicker end) {
+            this.medicineName = name;
+            this.morningTime = morning;
+            this.afternoonTime = afternoon;
+            this.eveningTime = evening;
+            this.endDate = end;
+        }
     }
 }
