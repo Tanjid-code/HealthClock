@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane fx:id="editPrescriptionPane" xmlns:fx="http://javafx.com/fxml/1"
+          fx:controller="com.tanjid.healthclock.EditPrescriptionController"
+          hgap="10" vgap="10" style="-fx-padding: 20;">
+
+    <Label text="Edit Prescription" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="5"
+           style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-padding-bottom: 10px;" />
+
+    <Label text="Patient Name:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+    <TextField fx:id="patientNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="4" />
+
+    <Label text="Medicine Name" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+    <Label text="Morning (HH:MM)" GridPane.columnIndex="1" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+    <Label text="Afternoon (HH:MM)" GridPane.columnIndex="2" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+    <Label text="Evening (HH:MM)" GridPane.columnIndex="3" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+    <Label text="End Date" GridPane.columnIndex="4" GridPane.rowIndex="2" style="-fx-font-weight: bold;"/>
+
+    <TextField fx:id="medicine1NameField" promptText="Medicine 1 Name" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+    <TextField fx:id="med1MorningTimeField" promptText="e.g., 08:00" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <TextField fx:id="med1AfternoonTimeField" promptText="e.g., 13:00" GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+    <TextField fx:id="med1EveningTimeField" promptText="e.g., 20:00" GridPane.columnIndex="3" GridPane.rowIndex="3"/>
+    <DatePicker fx:id="med1EndDatePicker" GridPane.columnIndex="4" GridPane.rowIndex="3"/>
+
+    <TextField fx:id="medicine2NameField" promptText="Medicine 2 Name" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+    <TextField fx:id="med2MorningTimeField" promptText="e.g., 08:00" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+    <TextField fx:id="med2AfternoonTimeField" promptText="e.g., 13:00" GridPane.columnIndex="2" GridPane.rowIndex="4"/>
+    <TextField fx:id="med2EveningTimeField" promptText="e.g., 20:00" GridPane.columnIndex="3" GridPane.rowIndex="4"/>
+    <DatePicker fx:id="med2EndDatePicker" GridPane.columnIndex="4" GridPane.rowIndex="4"/>
+
+    <TextField fx:id="medicine3NameField" promptText="Medicine 3 Name" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+    <TextField fx:id="med3MorningTimeField" promptText="e.g., 08:00" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    <TextField fx:id="med3AfternoonTimeField" promptText="e.g., 13:00" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+    <TextField fx:id="med3EveningTimeField" promptText="e.g., 20:00" GridPane.columnIndex="3" GridPane.rowIndex="5"/>
+    <DatePicker fx:id="med3EndDatePicker" GridPane.columnIndex="4" GridPane.rowIndex="5"/>
+
+    <TextField fx:id="medicine4NameField" promptText="Medicine 4 Name" GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+    <TextField fx:id="med4MorningTimeField" promptText="e.g., 08:00" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+    <TextField fx:id="med4AfternoonTimeField" promptText="e.g., 13:00" GridPane.columnIndex="2" GridPane.rowIndex="6"/>
+    <TextField fx:id="med4EveningTimeField" promptText="e.g., 20:00" GridPane.columnIndex="3" GridPane.rowIndex="6"/>
+    <DatePicker fx:id="med4EndDatePicker" GridPane.columnIndex="4" GridPane.rowIndex="6"/>
+
+    <TextField fx:id="medicine5NameField" promptText="Medicine 5 Name" GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+    <TextField fx:id="med5MorningTimeField" promptText="e.g., 08:00" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+    <TextField fx:id="med5AfternoonTimeField" promptText="e.g., 13:00" GridPane.columnIndex="2" GridPane.rowIndex="7"/>
+    <TextField fx:id="med5EveningTimeField" promptText="e.g., 20:00" GridPane.columnIndex="3" GridPane.rowIndex="7"/>
+    <DatePicker fx:id="med5EndDatePicker" GridPane.columnIndex="4" GridPane.rowIndex="7"/>
+
+    <Label text="Duration (days):" GridPane.columnIndex="0" GridPane.rowIndex="8" visible="false" managed="false"/>
+    <TextField fx:id="durationField" GridPane.columnIndex="1" GridPane.rowIndex="8" visible="false" managed="false"/>
+
+    <Label text="Start Date:" GridPane.columnIndex="2" GridPane.rowIndex="8" visible="false" managed="false"/>
+    <DatePicker fx:id="startDatePicker" GridPane.columnIndex="3" GridPane.rowIndex="8" visible="false" managed="false"/>
+
+    <Label text="End Date (Overall):" GridPane.columnIndex="0" GridPane.rowIndex="9" visible="false" managed="false"/>
+    <DatePicker fx:id="overallEndDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="9" visible="false" managed="false"/>
+
+    <Button fx:id="saveButton" text="Save Changes" onAction="#handleSave" GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.columnSpan="1" defaultButton="true">
+        <GridPane.margin>
+            <Insets top="20.0" />
+        </GridPane.margin>
+    </Button>
+    <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" GridPane.columnIndex="3" GridPane.rowIndex="10" GridPane.columnSpan="1" cancelButton="true">
+        <GridPane.margin>
+            <Insets top="20.0" />
+        </GridPane.margin>
+    </Button>
+
+</GridPane>
