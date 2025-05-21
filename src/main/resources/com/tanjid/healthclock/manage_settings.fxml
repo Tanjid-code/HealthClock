@@ -24,9 +24,9 @@
         <Text layoutX="50" layoutY="80" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #333;"
               text="🚀 Project Details:" />
         <Label layoutX="50" layoutY="120" style="-fx-font-size: 14px; -fx-text-fill: #555;"
-               text="HealthClock helps manage prescriptions and set medicine alarms." />
+               text="HealthClock helps manage prescriptions and set automatic medicine alarms." />
         <Label layoutX="50" layoutY="150" style="-fx-font-size: 14px; -fx-text-fill: #555;"
-               text="It allows users to upload prescription images and store details." />
+               text="Users can enter details for up to 5 medicines per prescription." />
 
         <!-- About Us Section -->
         <Text layoutX="50" layoutY="200" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: #333;"

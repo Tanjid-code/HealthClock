@@ -1,17 +1,19 @@
 package com.tanjid.healthclock;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.*;
+import java.util.*;
 
 public class AddPrescriptionController {
 
@@ -28,6 +30,8 @@ public class AddPrescriptionController {
     private static final String DB_URL = "jdbc:mysql://localhost:3306/health_clock";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "";
+
+    private final Timer timer = new Timer(true); // Background daemon timer
 
     @FXML
     public void initialize() {
@@ -138,17 +142,64 @@ public class AddPrescriptionController {
             }
 
             stmt.executeUpdate();
-            showAlert("Prescription saved successfully.");
 
-            // Clear form after saving
-            patientNameField.clear();
-            medicineContainer.getChildren().clear();
-            medicineEntries.clear();
-            addMedicineEntry();
+            for (int i = 0; i < medicineEntries.size(); i++) {
+                MedicineEntry entry = medicineEntries.get(i);
+                scheduleAlarm(patientName, names[i], morning[i], endDates[i]);
+                scheduleAlarm(patientName, names[i], afternoon[i], endDates[i]);
+                scheduleAlarm(patientName, names[i], evening[i], endDates[i]);
+            }
+
+            showAlert("Prescription saved and alarms scheduled successfully.");
+            clearForm();
 
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert("Failed to save prescription: " + e.getMessage());
+        }
+    }
+
+    private void scheduleAlarm(String patient, String medicine, String timeStr, java.sql.Date endDate) {
+        if (timeStr == null || timeStr.isEmpty()) return;
+
+        try {
+            String[] parts = timeStr.split(":");
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            LocalDate end = endDate.toLocalDate();
+            LocalDate today = LocalDate.now();
+
+            for (LocalDate date = today; !date.isAfter(end); date = date.plusDays(1)) {
+                LocalDateTime alarmTime = date.atTime(hour, minute);
+                long delay = Duration.between(LocalDateTime.now(), alarmTime).toMillis();
+                if (delay < 0) continue;
+
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Platform.runLater(() -> {
+                            playSound();
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Medicine Alarm");
+                            alert.setHeaderText("Time to take medicine!");
+                            alert.setContentText("Patient: " + patient + "\nMedicine: " + medicine);
+                            alert.showAndWait();
+                        });
+                    }
+                }, delay);
+            }
+        } catch (Exception e) {
+            System.err.println("Invalid time format: " + timeStr);
+        }
+    }
+
+    private void playSound() {
+        try {
+            AudioClip clip = new AudioClip(getClass().getResource("alarm.mp3").toString());
+            clip.play();
+        } catch (Exception e) {
+            System.err.println("Failed to play sound: " + e.getMessage());
         }
     }
 
@@ -158,6 +209,13 @@ public class AddPrescriptionController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void clearForm() {
+        patientNameField.clear();
+        medicineContainer.getChildren().clear();
+        medicineEntries.clear();
+        addMedicineEntry();
     }
 
     private static class MedicineEntry {

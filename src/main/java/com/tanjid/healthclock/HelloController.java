@@ -1,7 +1,5 @@
 package com.tanjid.healthclock;
 
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,16 +7,12 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.media.AudioClip;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class HelloController {
 
@@ -47,11 +41,8 @@ public class HelloController {
         checkAndCreateDatabase();
         checkAndCreateTable();
 
-        // Clean up expired prescriptions
-        deleteExpiredPrescriptions();
-
-        // Set automatic alarms
-        setAutomaticAlarms();
+        // Delete old data if longest end_date < today
+        deleteOldDataIfNeeded();
     }
 
     /** Check if database exists; create it if not */
@@ -89,88 +80,39 @@ public class HelloController {
         }
     }
 
-    /** Delete expired prescriptions based on duration */
-    private void deleteExpiredPrescriptions() {
-        String currentDate = LocalDate.now().toString();
-        String sql = "DELETE FROM prescriptions WHERE DATE_ADD(start_date, INTERVAL duration DAY) < ?";
+    /**
+     * Delete all old data if the longest end_date in the table is before today.
+     */
+    private void deleteOldDataIfNeeded() {
+        LocalDate today = LocalDate.now();
+
+        String maxDateQuery = "SELECT MAX(end_date) AS max_end_date FROM prescriptions";
+        String deleteSQL = "DELETE FROM prescriptions";
+
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, currentDate);
-            int deleted = stmt.executeUpdate();
-            System.out.println("Deleted expired prescriptions: " + deleted);
-        } catch (SQLException e) {
-            System.out.println("Error deleting expired prescriptions: " + e.getMessage());
-        }
-    }
+             Statement stmt = conn.createStatement()) {
 
-    /** Automatically set alarms for valid prescriptions */
-    private void setAutomaticAlarms() {
-        String today = LocalDate.now().toString();
-        String sql = "SELECT patient_name, medicine_name, alarm_time, start_date, duration " +
-                "FROM prescriptions WHERE start_date <= ? AND DATE_ADD(start_date, INTERVAL duration DAY) >= ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, today);
-            stmt.setString(2, today);
-            ResultSet rs = stmt.executeQuery();
+            ResultSet rs = stmt.executeQuery(maxDateQuery);
+            if (rs.next()) {
+                Date maxEndDateSql = rs.getDate("max_end_date");
+                if (maxEndDateSql != null) {
+                    LocalDate maxEndDate = maxEndDateSql.toLocalDate();
 
-            while (rs.next()) {
-                String patientName = rs.getString("patient_name");
-                String medicineName = rs.getString("medicine_name");
-                String alarmTimeStr = rs.getString("alarm_time");
-                LocalDate startDate = rs.getDate("start_date").toLocalDate();
-                int duration = rs.getInt("duration");
-                LocalDate endDate = startDate.plusDays(duration);
-
-                if (alarmTimeStr != null && !alarmTimeStr.isEmpty()) {
-                    for (String timeStr : alarmTimeStr.split(",")) {
-                        LocalTime alarmTime = LocalTime.parse(timeStr.trim());
-                        scheduleAlarm(patientName, medicineName, alarmTime, endDate);
+                    if (maxEndDate.isBefore(today)) {
+                        int deletedCount = stmt.executeUpdate(deleteSQL);
+                        System.out.println("Deleted " + deletedCount + " old prescriptions because max end_date was " + maxEndDate);
+                    } else {
+                        System.out.println("No old data deleted. Max end_date is " + maxEndDate);
                     }
+                } else {
+                    System.out.println("No data found in prescriptions table.");
                 }
             }
+            rs.close();
 
         } catch (SQLException e) {
-            System.out.println("Error setting alarms: " + e.getMessage());
+            System.out.println("Error deleting old data: " + e.getMessage());
         }
-    }
-
-    /** Schedule a daily alarm at given time until end date */
-    private void scheduleAlarm(String patientName, String medicineName, LocalTime alarmTime, LocalDate endDate) {
-        Timer timer = new Timer(true);
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                if (LocalDate.now().isAfter(endDate)) {
-                    this.cancel();
-                    return;
-                }
-
-                Platform.runLater(() -> {
-                    try {
-                        AudioClip clip = new AudioClip(getClass().getResource("alert.mp3").toExternalForm());
-                        clip.play();
-                    } catch (Exception e) {
-                        System.out.println("Error playing alarm sound: " + e.getMessage());
-                    }
-
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Medicine Reminder");
-                    alert.setHeaderText("Time to take medicine!");
-                    alert.setContentText("Patient: " + patientName +
-                            "\nMedicine: " + medicineName +
-                            "\nTime: " + alarmTime);
-                    alert.show();
-                });
-            }
-        };
-
-        LocalTime now = LocalTime.now();
-        long delay = java.time.Duration.between(now, alarmTime).toMillis();
-        if (delay < 0) delay += 24 * 60 * 60 * 1000;
-
-        long repeatInterval = 24 * 60 * 60 * 1000; // 24 hours
-        timer.scheduleAtFixedRate(task, delay, repeatInterval);
     }
 
     /** Button: Navigate to Add Prescription */
@@ -201,7 +143,7 @@ public class HelloController {
 
     /** Button: Navigate to Manage Settings */
     @FXML
-    public void onManageSettings(ActionEvent event) {
+    public void onManageSettings() {
         try {
             Stage stage = (Stage) quoteText.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("manage_settings.fxml"));
