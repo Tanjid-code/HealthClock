@@ -1,8 +1,10 @@
 package com.tanjid.healthclock;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 
 import java.sql.Connection;
@@ -10,11 +12,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.function.BiConsumer;
-import java.util.function.Function; // Added for helper function
+import java.util.function.Function;
 
 public class EditPrescriptionController {
 
@@ -70,6 +76,7 @@ public class EditPrescriptionController {
     private Runnable onSaveListener;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE;
+    private final Timer timer = new Timer(true); // Background daemon timer for alarms
 
     private static final String DB_URL = "jdbc:mysql://localhost:3306/health_clock";
     private static final String DB_USER = "root";
@@ -83,7 +90,6 @@ public class EditPrescriptionController {
             return;
         }
         this.prescriptionToEdit = prescription;
-        // Ensure originalPatientNameForUpdate is not null if prescription.getPatientName() can be null
         String patientName = prescription.getPatientName();
         this.originalPatientNameForUpdate = (patientName == null) ? "" : patientName;
         initializeFields();
@@ -98,11 +104,8 @@ public class EditPrescriptionController {
             System.out.println("DEBUG: prescriptionToEdit is null in initializeFields.");
             return;
         }
-        // Handle null patient name from prescriptionToEdit gracefully for display
         String patientNameToDisplay = prescriptionToEdit.getPatientName() == null ? "" : prescriptionToEdit.getPatientName();
-        System.out.println("DEBUG: Initializing fields for patient: " + patientNameToDisplay);
         patientNameField.setText(patientNameToDisplay);
-
 
         // Medicine 1
         medicine1NameField.setText(prescriptionToEdit.getMedicine1Name() == null ? "" : prescriptionToEdit.getMedicine1Name());
@@ -167,11 +170,10 @@ public class EditPrescriptionController {
         return null;
     }
 
-    // MODIFIED: Handles null from getText() and trims
     private String getTimeFromField(TextField timeField) {
         String textContent = timeField.getText();
         if (textContent == null || textContent.trim().isEmpty()) {
-            return null; // Return null for empty or null time
+            return null;
         }
         return textContent.trim();
     }
@@ -183,15 +185,11 @@ public class EditPrescriptionController {
             showAlert(Alert.AlertType.ERROR, "Error", "No prescription data to update. Please try reopening the edit form.");
             return;
         }
-        // originalPatientNameForUpdate should have been set in setPrescription
         if (originalPatientNameForUpdate == null || originalPatientNameForUpdate.trim().isEmpty()) {
-            // This case might indicate an issue if patient names can genuinely be empty strings
-            // and you still need to update them. For this fix, we assume originalPatientNameForUpdate is vital.
             showAlert(Alert.AlertType.ERROR, "Error", "Original patient name is missing or empty. Cannot update.");
             return;
         }
 
-        // Safely get and trim patient name
         String patientNameText = patientNameField.getText();
         String newPatientName = (patientNameText == null) ? "" : patientNameText.trim();
 
@@ -201,41 +199,35 @@ public class EditPrescriptionController {
         }
         prescriptionToEdit.setPatientName(newPatientName);
 
-        // Helper function to safely get trimmed text from a TextField
         Function<TextField, String> getTrimmedName = (tf) -> {
             String text = tf.getText();
-            return (text == null) ? "" : text.trim(); // Return empty string if text is null, then trim
+            return (text == null) ? "" : text.trim();
         };
 
-        // Medicine 1
         prescriptionToEdit.setMedicine1Name(getTrimmedName.apply(medicine1NameField));
         prescriptionToEdit.setMorningTime1(getTimeFromField(med1MorningTimeField));
         prescriptionToEdit.setAfternoonTime1(getTimeFromField(med1AfternoonTimeField));
         prescriptionToEdit.setEveningTime1(getTimeFromField(med1EveningTimeField));
         prescriptionToEdit.setEndDate1(getDatePickerValueAsString(med1EndDatePicker));
 
-        // Medicine 2
         prescriptionToEdit.setMedicine2Name(getTrimmedName.apply(medicine2NameField));
         prescriptionToEdit.setMorningTime2(getTimeFromField(med2MorningTimeField));
         prescriptionToEdit.setAfternoonTime2(getTimeFromField(med2AfternoonTimeField));
         prescriptionToEdit.setEveningTime2(getTimeFromField(med2EveningTimeField));
         prescriptionToEdit.setEndDate2(getDatePickerValueAsString(med2EndDatePicker));
 
-        // Medicine 3
         prescriptionToEdit.setMedicine3Name(getTrimmedName.apply(medicine3NameField));
         prescriptionToEdit.setMorningTime3(getTimeFromField(med3MorningTimeField));
         prescriptionToEdit.setAfternoonTime3(getTimeFromField(med3AfternoonTimeField));
         prescriptionToEdit.setEveningTime3(getTimeFromField(med3EveningTimeField));
         prescriptionToEdit.setEndDate3(getDatePickerValueAsString(med3EndDatePicker));
 
-        // Medicine 4
         prescriptionToEdit.setMedicine4Name(getTrimmedName.apply(medicine4NameField));
         prescriptionToEdit.setMorningTime4(getTimeFromField(med4MorningTimeField));
         prescriptionToEdit.setAfternoonTime4(getTimeFromField(med4AfternoonTimeField));
         prescriptionToEdit.setEveningTime4(getTimeFromField(med4EveningTimeField));
         prescriptionToEdit.setEndDate4(getDatePickerValueAsString(med4EndDatePicker));
 
-        // Medicine 5
         prescriptionToEdit.setMedicine5Name(getTrimmedName.apply(medicine5NameField));
         prescriptionToEdit.setMorningTime5(getTimeFromField(med5MorningTimeField));
         prescriptionToEdit.setAfternoonTime5(getTimeFromField(med5AfternoonTimeField));
@@ -258,10 +250,8 @@ public class EditPrescriptionController {
                 try {
                     if (val != null && !val.isEmpty()) {
                         stmt.setString(idx, val);
-                    } else if (val == null) {
+                    } else { // Handles null or empty string
                         stmt.setNull(idx, Types.VARCHAR);
-                    } else { // Empty string
-                        stmt.setNull(idx, Types.VARCHAR); // Treat empty string as NULL for DB
                     }
                 } catch (SQLException e) {
                     throw new RuntimeException("SQLException in setStringOrNull lambda", e);
@@ -321,21 +311,25 @@ public class EditPrescriptionController {
 
             int rowsAffected = stmt.executeUpdate();
 
-            if (rowsAffected == 0) {
-                showAlert(Alert.AlertType.WARNING, "Update Failed", "No matching prescription found in the database for '" + originalPatientNameForUpdate + "'.");
-            } else {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription updated successfully for '" + prescriptionToEdit.getPatientName() + "'.");
+            if (rowsAffected > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Prescription updated successfully for '" + prescriptionToEdit.getPatientName() + "'. Alarms will be rescheduled.");
                 this.originalPatientNameForUpdate = prescriptionToEdit.getPatientName();
+
+                scheduleAlarmsForEditedPrescription(prescriptionToEdit); // Schedule alarms
+
                 if (onSaveListener != null) {
                     onSaveListener.run();
                 }
                 closeWindow();
+            } else {
+                showAlert(Alert.AlertType.WARNING, "Update Failed", "No matching prescription found in the database for '" + originalPatientNameForUpdate + "'.");
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Database Error", "Error saving prescription: " + e.getMessage());
         } catch (RuntimeException e) {
+            // Catch runtime exceptions from lambdas
             if (e.getCause() instanceof SQLException) {
                 e.getCause().printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Database Error", "Error during database operation: " + e.getCause().getMessage());
@@ -343,11 +337,137 @@ public class EditPrescriptionController {
                 e.printStackTrace();
                 showAlert(Alert.AlertType.ERROR, "Application Error", "An unexpected error occurred during save: " + e.getMessage());
             }
-        } catch (Exception e) {
+        } catch (Exception e) { // Generic catch for other unexpected errors
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Application Error", "An unexpected error occurred: " + e.getMessage());
         }
     }
+
+    private void scheduleAlarmsForEditedPrescription(Prescription p) {
+        String patient = p.getPatientName();
+
+        // Medicine 1
+        if (p.getMedicine1Name() != null && !p.getMedicine1Name().isEmpty() && p.getEndDate1() != null) {
+            scheduleAlarm(patient, p.getMedicine1Name(), p.getMorningTime1(), p.getEndDate1());
+            scheduleAlarm(patient, p.getMedicine1Name(), p.getAfternoonTime1(), p.getEndDate1());
+            scheduleAlarm(patient, p.getMedicine1Name(), p.getEveningTime1(), p.getEndDate1());
+        }
+        // Medicine 2
+        if (p.getMedicine2Name() != null && !p.getMedicine2Name().isEmpty() && p.getEndDate2() != null) {
+            scheduleAlarm(patient, p.getMedicine2Name(), p.getMorningTime2(), p.getEndDate2());
+            scheduleAlarm(patient, p.getMedicine2Name(), p.getAfternoonTime2(), p.getEndDate2());
+            scheduleAlarm(patient, p.getMedicine2Name(), p.getEveningTime2(), p.getEndDate2());
+        }
+        // Medicine 3
+        if (p.getMedicine3Name() != null && !p.getMedicine3Name().isEmpty() && p.getEndDate3() != null) {
+            scheduleAlarm(patient, p.getMedicine3Name(), p.getMorningTime3(), p.getEndDate3());
+            scheduleAlarm(patient, p.getMedicine3Name(), p.getAfternoonTime3(), p.getEndDate3());
+            scheduleAlarm(patient, p.getMedicine3Name(), p.getEveningTime3(), p.getEndDate3());
+        }
+        // Medicine 4
+        if (p.getMedicine4Name() != null && !p.getMedicine4Name().isEmpty() && p.getEndDate4() != null) {
+            scheduleAlarm(patient, p.getMedicine4Name(), p.getMorningTime4(), p.getEndDate4());
+            scheduleAlarm(patient, p.getMedicine4Name(), p.getAfternoonTime4(), p.getEndDate4());
+            scheduleAlarm(patient, p.getMedicine4Name(), p.getEveningTime4(), p.getEndDate4());
+        }
+        // Medicine 5
+        if (p.getMedicine5Name() != null && !p.getMedicine5Name().isEmpty() && p.getEndDate5() != null) {
+            scheduleAlarm(patient, p.getMedicine5Name(), p.getMorningTime5(), p.getEndDate5());
+            scheduleAlarm(patient, p.getMedicine5Name(), p.getAfternoonTime5(), p.getEndDate5());
+            scheduleAlarm(patient, p.getMedicine5Name(), p.getEveningTime5(), p.getEndDate5());
+        }
+    }
+
+    private void scheduleAlarm(String patient, String medicine, String timeStr, String endDateStr) {
+        if (timeStr == null || timeStr.trim().isEmpty() ||
+                medicine == null || medicine.trim().isEmpty() ||
+                endDateStr == null || endDateStr.trim().isEmpty()) {
+            // System.out.println("DEBUG: Skipping alarm for " + medicine + " due to missing time/medicine/endDate.");
+            return;
+        }
+
+        try {
+            String[] parts = timeStr.split(":");
+            if (parts.length != 2) {
+                System.err.println("Invalid time format (not HH:mm): " + timeStr + " for medicine " + medicine);
+                return;
+            }
+            int hour = Integer.parseInt(parts[0]);
+            int minute = Integer.parseInt(parts[1]);
+
+            if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                System.err.println("Invalid time values (HH must be 0-23, mm 0-59): " + timeStr + " for medicine " + medicine);
+                return;
+            }
+
+            LocalDate end = LocalDate.parse(endDateStr, dateFormatter);
+            LocalDate today = LocalDate.now();
+
+            for (LocalDate date = today; !date.isAfter(end); date = date.plusDays(1)) {
+                LocalDateTime alarmDateTime = date.atTime(hour, minute);
+                LocalDateTime now = LocalDateTime.now();
+
+                if (alarmDateTime.isAfter(now)) { // Only schedule if the alarm time is in the future
+                    long delay = Duration.between(now, alarmDateTime).toMillis();
+                    // System.out.println("DEBUG: Scheduling alarm for " + medicine + " at " + alarmDateTime + " with delay " + delay + "ms");
+
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Platform.runLater(() -> {
+                                playSound();
+                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                                alert.setTitle("Medicine Alarm");
+                                alert.setHeaderText("Time to take medicine!");
+                                alert.setContentText("Patient: " + patient + "\nMedicine: " + medicine + "\nTime: " + timeStr);
+                                // Not setting owner, so it behaves like a system notification for the app
+                                alert.showAndWait();
+                            });
+                        }
+                    }, delay);
+                } else {
+                    // System.out.println("DEBUG: Skipping past alarm for " + medicine + " at " + alarmDateTime);
+                }
+            }
+        } catch (DateTimeParseException e) {
+            System.err.println("Invalid end date format: " + endDateStr + " for medicine " + medicine + ". Error: " + e.getMessage());
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid time format (HH:mm parts not numeric): " + timeStr + " for medicine " + medicine + ". Error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error scheduling alarm for " + medicine + " at " + timeStr + " until " + endDateStr + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void playSound() {
+        try {
+            // Ensure "alarm.mp3" is in the same package as this controller class,
+            // or provide an absolute path if it's elsewhere.
+            String soundFile = "alarm.mp3";
+            java.net.URL resourceUrl = getClass().getResource(soundFile);
+            if (resourceUrl == null) {
+                System.err.println("Failed to find sound file: " + soundFile);
+                return;
+            }
+
+            AudioClip clip = new AudioClip(resourceUrl.toString());
+            clip.setCycleCount(AudioClip.INDEFINITE); // Loop the sound indefinitely
+            clip.play();
+
+            // Stop the clip after 10 seconds
+            new Timer(true).schedule(new TimerTask() { // Use a new daemon timer for this short-lived task
+                @Override
+                public void run() {
+                    Platform.runLater(clip::stop);
+                }
+            }, 10_000); // 10 seconds in milliseconds
+
+        } catch (Exception e) {
+            System.err.println("Failed to play sound: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     public void handleCancel(ActionEvent event) {

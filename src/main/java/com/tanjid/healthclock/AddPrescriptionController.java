@@ -197,7 +197,17 @@ public class AddPrescriptionController {
     private void playSound() {
         try {
             AudioClip clip = new AudioClip(getClass().getResource("alarm.mp3").toString());
+            clip.setCycleCount(AudioClip.INDEFINITE); // Loop the sound indefinitely
             clip.play();
+
+            // Stop the clip after 10 seconds
+            new Timer(true).schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(clip::stop);
+                }
+            }, 10_000); // 10 seconds in milliseconds
+
         } catch (Exception e) {
             System.err.println("Failed to play sound: " + e.getMessage());
         }
